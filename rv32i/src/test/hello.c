@@ -1,5 +1,6 @@
+#include "print.h"
+
 int main() {
-    int a = 2;
-    a += 5;
+    print("Hello, World!\n");
     return 0;
 }
