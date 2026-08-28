@@ -1,0 +1,6 @@
+[submodule "rv32i/emulator"]
+	path = rv32i/emulator
+	url = https://github.com/sysprog21/rv32emu.git
+[submodule "rv32i/simulator"]
+	path = rv32i/simulator
+	url = https://github.com/riscv-software-src/riscv-isa-sim.git

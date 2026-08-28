@@ -1,7 +1,10 @@
+# 入出力
+入力は無し
+標準出力はMMIOから
+cpu例外は標準出力に行く
+トレースログは自動でlogfileへ
+
 # [RV32I Base Integer Instruction Set](https://docs.riscv.org/reference/isa/v20260120/unpriv/rv32.html)
-
-# 作るもの
-
 ## レジスタ
 - 32bit
 - x0 ~ x31 + pc
@@ -22,9 +25,3 @@ JAL
 JALR
 BEQ BNE BLT BLTU BGE BGEU
 LOAD STORE (byte長variantあり)
-
-## 入出力
-入力は無し
-標準出力はMMIOから
-cpu例外は標準出力に行く
-トレースログは自動でlogfileへ
