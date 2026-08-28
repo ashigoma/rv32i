@@ -14,13 +14,9 @@ SV_LOG="${BASE_PATH}.sv.log"
 ./scripts/run_sv.sh "$ELF_PATH" "$SV_TRACE" "$SV_LOG"
 
 if diff -q "$SPIKE_TRACE" "$SV_TRACE" > /dev/null; then
-    echo ""
     echo -e "\033[32m[pass] $NAME\033[0m"
-    echo ""
 else
-    echo ""
     echo -e "\033[31m[fail] $NAME\033[0m"
-    echo ""
     echo "output diff:"
     diff -u "$SPIKE_TRACE" "$SV_TRACE" \
         | sed -E '/^(---|\+\+\+|@@)/d' \
