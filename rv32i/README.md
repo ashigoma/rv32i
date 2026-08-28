@@ -2,7 +2,7 @@
 
 ```
 make
-spike --isa=rv32i --log-commits ./build/hello.elf 2> spike_trace.log
+make check
 ```
 
 # cpu側の特殊仕様まとめ

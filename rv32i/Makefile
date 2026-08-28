@@ -18,10 +18,12 @@ LDFLAGS := -T link.ld -Wl,--no-warn-rwx-segments
 
 TEST_SCRIPT := scripts/test.sh
 
-.PHONY: check clean
+.PHONY: all check clean
 .SECONDARY:
 
-check: $(ALL_ELFS) $(ALL_BINS)
+all: $(ALL_ELFS) $(ALL_BINS)
+
+check: all
 	@for bin in $(ALL_ELFS); do \
 		$(TEST_SCRIPT) $$bin || exit 1; \
 	done
