@@ -13,7 +13,7 @@ _start:
     li t1, 1
     sw t1, 0(t0)
 
-    # 自作cpuでは$finishを呼ぶ↓
+    # svでは$finishを呼ぶ
     ebreak
 
 # spikeを終了するためのなにか
@@ -21,5 +21,6 @@ _start:
 .align 6
 .global tohost
 tohost:   .dword 0
+.align 6
 .global fromhost
 fromhost: .dword 0

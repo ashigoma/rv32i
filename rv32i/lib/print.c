@@ -1,8 +1,8 @@
 #include "print.h"
 
-#define MMIO_PUTCHAR 0x10000000
-#define MMIO_PUTHEX 0x10000004
-#define MMIO_PUTINT 0x10000008
+#define MMIO_PUTCHAR 0x20000000
+#define MMIO_PUTHEX 0x20000004
+#define MMIO_PUTINT 0x20000008
 
 void print_char(char c) {
     *(volatile char *)MMIO_PUTCHAR = c;

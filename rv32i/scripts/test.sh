@@ -12,6 +12,8 @@ SV_LOG="${BASE_PATH}.sv.log"
 
 ./scripts/run_spike.sh "$ELF_PATH" "$SPIKE_TRACE" "$SPIKE_LOG"
 ./scripts/run_sv.sh "$ELF_PATH" "$SV_TRACE" "$SV_LOG"
+./scripts/convert_log.sh "$SPIKE_TRACE"
+./scripts/convert_log.sh "$SV_TRACE"
 
 if diff -q "$SPIKE_TRACE" "$SV_TRACE" > /dev/null; then
     echo -e "\033[32m[pass] $NAME\033[0m"
