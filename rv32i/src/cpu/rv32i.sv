@@ -13,7 +13,6 @@ module rv32i (
         #1;
 
         bin_file = $fopen(exec_file, "rb");
-        if (bin_file) begin
             $fread(mem, bin_file);
             $fclose(bin_file);
         end else begin
