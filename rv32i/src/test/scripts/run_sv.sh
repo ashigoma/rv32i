@@ -1,0 +1,1 @@
+vvp $(dirname $0)/../../../build/rv32i.vvp +EXEC=$1 +TRACE_FILE=$2 +LOG_FILE=$3

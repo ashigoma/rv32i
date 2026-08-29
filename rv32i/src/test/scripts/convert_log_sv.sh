@@ -1,0 +1,1 @@
+sed -i -e "/VCD info:/d" -e "/\$finish called/d" $1

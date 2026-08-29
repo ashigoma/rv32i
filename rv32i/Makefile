@@ -1,44 +1,11 @@
-CC := riscv64-unknown-elf-gcc
-OBJCOPY := riscv64-unknown-elf-objcopy
-OBJDUMP := riscv64-unknown-elf-objdump
+.PHONY: all clean
 
-TEST_DIR := src/test
-LIB_DIR := lib
-BUILD_DIR := build
-
-CRT0 := $(LIB_DIR)/crt0.S
-LIB_SRCS := $(filter-out $(CRT0),$(wildcard $(LIB_DIR)/*.c) $(wildcard $(LIB_DIR)/*.S))
-TEST_SRCS := $(wildcard $(TEST_DIR)/*.c) $(wildcard $(TEST_DIR)/*.S)
-
-ALL_BINS := $(patsubst $(TEST_DIR)/%, $(BUILD_DIR)/%.bin, $(basename $(TEST_SRCS)))
-ALL_ELFS := $(patsubst $(TEST_DIR)/%, $(BUILD_DIR)/%.elf, $(basename $(TEST_SRCS)))
-
-CFLAGS := -march=rv32i -mabi=ilp32 -O0 -nostdlib -ffreestanding -I$(LIB_DIR)
-LDFLAGS := -T link.ld -Wl,--no-warn-rwx-segments
-
-TEST_SCRIPT := scripts/test.sh
-
-.PHONY: all check clean
-.SECONDARY:
-
-all: $(ALL_ELFS) $(ALL_BINS)
+all:
+	$(MAKE) -C src/test
+	$(MAKE) -C src/cpu
 
 check: all
-	@for bin in $(ALL_ELFS); do \
-		$(TEST_SCRIPT) $$bin || exit 1; \
-	done
-
-$(BUILD_DIR)/%.elf: $(TEST_DIR)/%.c $(CRT0) $(LIB_SRCS)
-	@mkdir -p $(BUILD_DIR)
-	$(CC) $(CFLAGS) $(CRT0) $< $(filter-out $<, $(LIB_SRCS)) $(LDFLAGS) -o $@
-
-$(BUILD_DIR)/%.elf: $(TEST_DIR)/%.S $(CRT0) $(LIB_SRCS)
-	@mkdir -p $(BUILD_DIR)
-	$(CC) $(CFLAGS) $(CRT0) $< $(filter-out $<, $(LIB_SRCS)) $(LDFLAGS) -o $@
-
-$(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf
-	$(OBJCOPY) -O binary $< $@
-	$(OBJDUMP) -d $< > $(BUILD_DIR)/$*.dis
+	$(MAKE) -C src/test check
 
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf build

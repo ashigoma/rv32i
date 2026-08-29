@@ -1,7 +1,9 @@
 #!/bin/bash
-cd $(dirname $0)/..
+
+THIS_DIR=$(dirname $0)
 
 ELF_PATH="$1"
+BIN_PATH="${ELF_PATH%.*}.bin"
 BASE_PATH="${ELF_PATH%.elf}"
 NAME=$(basename "$BASE_PATH")
 
@@ -10,10 +12,10 @@ SPIKE_LOG="${BASE_PATH}.sim.log"
 SV_TRACE="${BASE_PATH}.trace.sv.log"
 SV_LOG="${BASE_PATH}.sv.log"
 
-./scripts/run_spike.sh "$ELF_PATH" "$SPIKE_TRACE" "$SPIKE_LOG"
-./scripts/run_sv.sh "$ELF_PATH" "$SV_TRACE" "$SV_LOG"
-./scripts/convert_log.sh "$SPIKE_TRACE"
-./scripts/convert_log.sh "$SV_TRACE"
+"$THIS_DIR"/run_spike.sh "$ELF_PATH" "$SPIKE_TRACE" "$SPIKE_LOG"
+"$THIS_DIR"/run_sv.sh "$BIN_PATH" "$SV_TRACE" "$SV_LOG"
+"$THIS_DIR"/convert_log_spike.sh "$SPIKE_TRACE"
+"$THIS_DIR"/convert_log_sv.sh "$SV_TRACE"
 
 if diff -q "$SPIKE_TRACE" "$SV_TRACE" > /dev/null; then
     echo -e "\033[32m[pass] $NAME\033[0m"
