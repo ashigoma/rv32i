@@ -7,8 +7,8 @@ LIB_DIR := ../../lib
 BUILD_DIR := ../../build
 TEST_SCRIPT := ./scripts/test.sh
 
-CRT0 := $(LIB_DIR)/crt0.S
-LIB_SRCS := $(filter-out $(CRT0),$(wildcard $(LIB_DIR)/*.c) $(wildcard $(LIB_DIR)/*.S))
+BOOT_S := $(LIB_DIR)/boot.S
+LIB_SRCS := $(filter-out $(BOOT_S),$(wildcard $(LIB_DIR)/*.c) $(wildcard $(LIB_DIR)/*.S))
 TEST_SRCS := $(wildcard $(TEST_DIR)/*.c) $(wildcard $(TEST_DIR)/*.S)
 
 ALL_BINS := $(patsubst $(TEST_DIR)/%, $(BUILD_DIR)/%.bin, $(basename $(TEST_SRCS)))
@@ -27,13 +27,13 @@ check: all
 		$(TEST_SCRIPT) $$bin || exit 1; \
 	done
 
-$(BUILD_DIR)/%.elf: $(TEST_DIR)/%.c $(CRT0) $(LIB_SRCS)
+$(BUILD_DIR)/%.elf: $(TEST_DIR)/%.c $(BOOT_S) $(LIB_SRCS)
 	@mkdir -p $(BUILD_DIR)
-	$(CC) $(CFLAGS) $(CRT0) $< $(filter-out $<, $(LIB_SRCS)) $(LDFLAGS) -o $@
+	$(CC) $(CFLAGS) $(BOOT_S) $< $(filter-out $<, $(LIB_SRCS)) $(LDFLAGS) -o $@
 
-$(BUILD_DIR)/%.elf: $(TEST_DIR)/%.S $(CRT0) $(LIB_SRCS)
+$(BUILD_DIR)/%.elf: $(TEST_DIR)/%.S $(BOOT_S) $(LIB_SRCS)
 	@mkdir -p $(BUILD_DIR)
-	$(CC) $(CFLAGS) $(CRT0) $< $(filter-out $<, $(LIB_SRCS)) $(LDFLAGS) -o $@
+	$(CC) $(CFLAGS) $(BOOT_S) $< $(filter-out $<, $(LIB_SRCS)) $(LDFLAGS) -o $@
 
 $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf
 	$(OBJCOPY) -O binary $< $@
