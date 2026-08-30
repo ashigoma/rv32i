@@ -1,3 +1,5 @@
+// selector
+
 typedef enum logic [4:0] {
   PC = 1,
   IMM_I = 2,
@@ -31,7 +33,7 @@ module selector (
       IMM_J: out = imm_j;
       R1: out = r1;
       R2: out = r2;
-      default: out = 31'd0;
+      default: out = 32'hFFFFFFFF;
     endcase
   end
 endmodule
