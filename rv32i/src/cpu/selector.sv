@@ -33,7 +33,7 @@ module selector (
       IMM_J: out = imm_j;
       R1: out = r1;
       R2: out = r2;
-      default: out = 32'hFFFFFFFF;
+      default: out = 32'hEEEEEEEE;
     endcase
   end
 endmodule
