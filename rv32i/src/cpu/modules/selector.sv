@@ -1,15 +1,5 @@
+`include "types.svh"
 // selector
-
-typedef enum logic [4:0] {
-  PC = 1,
-  IMM_I = 2,
-  IMM_S = 3,
-  IMM_B = 4,
-  IMM_U = 5,
-  IMM_J = 6,
-  R1 = 7,
-  R2 = 8
-} sel_e;
 
 module selector (
     input  logic [31:0] pc,
@@ -25,15 +15,15 @@ module selector (
 );
   always_comb begin
     case (sel)
-      PC: out = pc;
-      IMM_I: out = imm_i;
-      IMM_S: out = imm_s;
-      IMM_B: out = imm_b;
-      IMM_U: out = imm_u;
-      IMM_J: out = imm_j;
-      R1: out = r1;
-      R2: out = r2;
-      default: out = 32'hEEEEEEEE;
+      SEL_PC: out = pc;
+      SEL_IMM_I: out = imm_i;
+      SEL_IMM_S: out = imm_s;
+      SEL_IMM_B: out = imm_b;
+      SEL_IMM_U: out = imm_u;
+      SEL_IMM_J: out = imm_j;
+      SEL_R1: out = r1;
+      SEL_R2: out = r2;
+      default: out = 32'hCCCCCCCC;
     endcase
   end
 endmodule

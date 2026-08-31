@@ -1,4 +1,4 @@
-typedef enum logic [4:0] {A = 1} alu_type_e;
+`include "types.svh"
 
 module alu (
     input  logic [31:0] a,
@@ -9,7 +9,8 @@ module alu (
 
   always_comb begin
     case (op_type)
-      A: out = a;
+      ALU_A: out = a;
+      ALU_ADD: out = a + b;
     endcase
   end
 

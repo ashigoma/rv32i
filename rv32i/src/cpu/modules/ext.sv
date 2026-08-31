@@ -1,10 +1,4 @@
-typedef enum logic [2:0] {
-  NONE = 1,
-  ZERO_HALF = 2,
-  ZERO_BYTE = 3,
-  SIGN_HALF = 4,
-  SIGN_BYTE = 5
-} ext_type_e;
+`include "types.svh"
 
 module ext (
     input logic [31:0] data,

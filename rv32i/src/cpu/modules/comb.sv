@@ -1,9 +1,4 @@
-typedef enum logic [4:0] {
-  L = 1,
-  HALF = 2,
-  BYTE = 3,
-  H = 4
-} comb_type_e;
+`include "types.svh"
 
 module comb (
     input  logic [31:0] l,
