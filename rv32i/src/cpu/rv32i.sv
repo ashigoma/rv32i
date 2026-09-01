@@ -1,3 +1,5 @@
+`include "types.svh"
+
 module rv32i (
     input logic clk,
     input logic rst,
@@ -7,6 +9,121 @@ module rv32i (
   string exec_file;
   logic [31:0] mem[0:255];
   int bin_file;
+
+  logic [31:0] pc_reg;
+  wire [31:0] pc_next, pc_in, pc, inst, wb;
+  wire [31:0] imm_i, imm_s, imm_b, imm_u, imm_j;
+  op_e op;
+
+  sel_e ctl_sel_1, ctl_sel_2, ctl_sel_3;
+  alu_type_e  ctl_alu;
+  ext_type_e  ctl_ext;
+  comb_type_e ctl_comb;
+  logic ctl_branch, ctl_reg_we, ctl_ram_we, ctl_skip_ram;
+
+  logic [4:0] rs1, rs2, rs3;
+  logic [31:0] r1, r2;
+  logic [31:0] alu_a, alu_b, d3;
+  logic [31:0] alu_out;
+  logic [31:0] ram_wdata, ram_out;
+  logic [31:0] ext_in;
+
+  op_decode op_decode_ (
+      .inst(inst),
+      .op  (op)
+  );
+
+  control control_ (
+      .inst(inst),
+      .op(op),
+      .sel_1(ctl_sel_1),
+      .sel_2(ctl_sel_2),
+      .sel_3(ctl_sel_3),
+      .alu(ctl_alu),
+      .ext(ctl_ext),
+      .comb(ctl_comb),
+      .skip_ram(ctl_skip_ram),
+      .ram_we(ctl_ram_we),
+      .reg_we(ctl_reg_we)
+  );
+
+  reg_file reg_file_ (
+      .rs1(rs1),
+      .rs2(rs2),
+      .r1 (r1),
+      .r2 (r2),
+
+      .rs3(rs3),
+      .wdata(wb),
+      .we(ctl_reg_we),
+
+      .clk(clk),
+      .rst(rst)
+  );
+
+  selector selector_1_ (
+      .pc(pc),
+      .imm_i(imm_i),
+      .imm_s(imm_s),
+      .imm_b(imm_b),
+      .imm_u(imm_u),
+      .imm_j(imm_j),
+      .r1(r1),
+      .r2(r2),
+      .sel(ctl_sel_1),
+      .out(alu_a)
+  );
+  selector selector_2_ (
+      .pc(pc),
+      .imm_i(imm_i),
+      .imm_s(imm_s),
+      .imm_b(imm_b),
+      .imm_u(imm_u),
+      .imm_j(imm_j),
+      .r1(r1),
+      .r2(r2),
+      .sel(ctl_sel_2),
+      .out(alu_b)
+  );
+  selector selector_3_ (
+      .pc(pc),
+      .imm_i(imm_i),
+      .imm_s(imm_s),
+      .imm_b(imm_b),
+      .imm_u(imm_u),
+      .imm_j(imm_j),
+      .r1(r1),
+      .r2(r2),
+      .sel(ctl_sel_3),
+      .out(d3)
+  );
+  alu alu_ (
+      .a(alu_a),
+      .b(alu_b),
+      .op_type(ctl_alu),
+      .out(alu_out)
+  );
+
+  ram ram_ (
+      .clk(clk),
+      .we(ctl_ram_we),
+      .adr(alu_out),
+      .wdata(ram_wdata),
+      .data(ram_out)
+  );
+
+  comb comb_ (
+      .l(d3),
+      .h(wb),
+      .comb_type(ctl_comb),
+      .out(ram_wdata)
+  );
+
+  ext ext_ (
+      .data(ext_in),
+      .ext_type(ctl_ext),
+      .out(wb)
+  );
 
   initial begin
     if (!$value$plusargs("EXEC=%s", exec_file)) begin
@@ -29,10 +146,41 @@ module rv32i (
 
   always_ff @(posedge clk or posedge rst) begin
     if (rst) begin
-
+      pc_reg <= 32'h80000000;
     end else begin
-
+      pc_reg <= pc_in;
     end
+  end
+
+  always_comb begin
+    // instruction fetch
+    inst = mem[pc-32'h80000000];
+    pc_next = pc + 32'h00000004;
+    if (ctl_branch) begin
+      pc_in = wb;
+    end else begin
+      pc_in = pc_next;
+    end
+
+    // register file access
+    rs1   = inst[19:15];
+    rs2   = inst[24:20];
+    rs3   = inst[11:7];
+
+    // imm
+    imm_i = 32'($signed(inst[31:20]));
+    imm_s = 32'($signed({inst[31:25], inst[11:7]}));
+    imm_b = 32'($signed({inst[31], inst[7], inst[30:25], inst[11:8]}));
+    imm_u = 32'($signed(inst[31:12]));
+    imm_j = 32'($signed({inst[31], inst[19:12], inst[20], inst[30:21]}));
+
+    // skip ram
+    if (ctl_skip_ram) begin
+      ext_in = alu_out;
+    end else begin
+      ext_in = ram_out;
+    end
+
   end
 
 endmodule

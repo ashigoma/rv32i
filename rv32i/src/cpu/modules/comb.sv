@@ -1,5 +1,6 @@
 `include "types.svh"
 
+
 module comb (
     input  logic [31:0] l,
     input  logic [31:0] h,
@@ -13,10 +14,10 @@ module comb (
 
   always_comb begin
     case (comb_type)
-      L: out = l;
-      HALF: out = {h_half, l_half};
-      BYTE: out = {h_byte, l_byte};
-      H: out = h;
+      COMB_L: out = l;
+      COMB_HALF: out = {h_half, l_half};
+      COMB_BYTE: out = {h_byte, l_byte};
+      COMB_H: out = h;
       default: out = 32'hCCCCCCCC;
     endcase
   end
