@@ -15,6 +15,7 @@ module control (
     output logic reg_we
 );
 
+  // see also: branch control (rv32i.sv)
   always_comb begin
     case (op)
       OP_LUI: begin
@@ -30,6 +31,11 @@ module control (
       OP_JAL: begin
         // rd = pc + 4, pc = pc + imm_j
         {alu, sel_1, sel_2} = {ALU_ADD, SEL_PC, SEL_IMM_J};
+        {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b1, EXT_NONE, 1'b0, 1'b1};
+      end
+      OP_JALR: begin
+        // rd = pc + 4, pc = rs1 + imm_i
+        {alu, sel_1, sel_2} = {ALU_ADD, SEL_R1, SEL_IMM_I};
         {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b1, EXT_NONE, 1'b0, 1'b1};
       end
       OP_LW: begin

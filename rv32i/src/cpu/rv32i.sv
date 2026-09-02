@@ -154,7 +154,8 @@ module rv32i (
   always @(posedge clk) begin
     if (!rst) begin
       if (ctl_reg_we) begin
-        if (ctl_skip_ram) begin
+        if (rs3 == '0) begin
+        end else if (ctl_skip_ram) begin
           $fdisplay(trace_fd, "(0x%08h) x%0d = 0x%08h", addr, rs3, reg_wdata);
         end else begin
           $fdisplay(trace_fd, "(0x%08h) x%0d = [0x%08h]", addr, rs3, alu_out);
@@ -172,6 +173,7 @@ module rv32i (
     // branch control
     case (op)
       OP_JAL:  ctl_branch = 1'b1;
+      OP_JALR: ctl_branch = 1'b1;
       default: ctl_branch = 1'b0;
     endcase
 

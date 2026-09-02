@@ -18,4 +18,5 @@ lint:
 	$(LINTER) $(SRCS)
 
 $(VVP): $(SRCS)
+	mkdir -p $(BUILD_DIR)
 	iverilog $(FLAGS) -o $(VVP) $(SRCS)

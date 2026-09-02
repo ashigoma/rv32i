@@ -38,7 +38,10 @@ module main;
     end
 
     trace_fd = $fopen(trace_file, "w");
-    log_fd = $fopen(log_file, "w");
+    log_fd   = $fopen(log_file, "w");
+
+    $dumpfile(vcd_file);
+    $dumpvars(0, rv32i_);
 
     rst = 1'b1;
     #20;
@@ -47,9 +50,6 @@ module main;
     #1000;
     $fclose(trace_fd);
     $fclose(log_fd);
-
-    $dumpfile(vcd_file);
-    $dumpvars(0, rv32i_);
 
     $finish;
   end

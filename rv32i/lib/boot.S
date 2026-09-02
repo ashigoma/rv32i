@@ -9,7 +9,7 @@ _start:
     # まだ
 
     # spの初期化
-    li sp, 0xa0000000
+    li sp, 0x90010000
 
     # 走らす
     call main

@@ -4,8 +4,8 @@ ENTRY( _start )
 MEMORY
 {
   RAM_MMIO (rwx) : ORIGIN = 0x20000000, LENGTH = 4K
-  ROM      (rx)  : ORIGIN = 0x80000000, LENGTH = 256M
-  RAM      (rwx) : ORIGIN = 0x90000000, LENGTH = 256M
+  ROM      (rx)  : ORIGIN = 0x80000000, LENGTH = 4K
+  RAM      (rwx) : ORIGIN = 0x90000000, LENGTH = 4K
 }
 
 SECTIONS
