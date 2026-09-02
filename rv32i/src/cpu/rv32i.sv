@@ -154,9 +154,13 @@ module rv32i (
   always @(posedge clk) begin
     if (!rst) begin
       if (ctl_reg_we) begin
-        $fdisplay(trace_fd, "(0x%08h) x%0d = 0x%08h", addr, rs3, reg_wdata);
+        if (ctl_skip_ram) begin
+          $fdisplay(trace_fd, "(0x%08h) x%0d = 0x%08h", addr, rs3, reg_wdata);
+        end else begin
+          $fdisplay(trace_fd, "(0x%08h) x%0d = [0x%08h]", addr, rs3, alu_out);
+        end
       end else if (ctl_ram_we) begin
-        $fdisplay(trace_fd, "(0x%08h) [%08h] = 0x%08h", addr, alu_out, ram_wdata);
+        $fdisplay(trace_fd, "(0x%08h) [0x%08h] = 0x%08h", addr, alu_out, ram_wdata);
       end else begin
         $fdisplay(trace_fd, "(0x%08h) inst: 0x%08h", addr, inst);
       end
