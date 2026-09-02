@@ -2,6 +2,7 @@
 `define TYPES_SVH
 
 typedef enum {
+  SEL_NONE,
   SEL_PC,
   SEL_IMM_I,
   SEL_IMM_S,
@@ -21,6 +22,7 @@ typedef enum {
 } ext_type_e;
 
 typedef enum {
+  COMB_NONE,
   COMB_L,
   COMB_HALF,
   COMB_BYTE,
@@ -28,11 +30,13 @@ typedef enum {
 } comb_type_e;
 
 typedef enum {
+  ALU_NONE,
   ALU_A,
   ALU_ADD
 } alu_type_e;
 
 typedef enum {
+  OP_NONE,
   OP_LUI,
   OP_AUIPC,
   OP_JAL,
@@ -74,8 +78,7 @@ typedef enum {
   OP_FENCE_TSO,
   OP_PAUSE,
   OP_ECALL,
-  OP_EBREAK,
-  OP_NONE
+  OP_EBREAK
 } op_e;
 
 `endif

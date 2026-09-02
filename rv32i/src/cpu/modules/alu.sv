@@ -10,7 +10,8 @@ module alu (
 
   always_comb begin
     case (op_type)
-      ALU_A:   out = a;
+      ALU_NONE: out = '0;
+      ALU_A: out = a;
       ALU_ADD: out = a + b;
     endcase
   end

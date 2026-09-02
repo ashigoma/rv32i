@@ -16,6 +16,7 @@ module selector (
 );
   always_comb begin
     case (sel)
+      SEL_NONE: out = '0;
       SEL_PC: out = pc;
       SEL_IMM_I: out = imm_i;
       SEL_IMM_S: out = imm_s;

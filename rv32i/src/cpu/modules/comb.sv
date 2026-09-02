@@ -14,6 +14,7 @@ module comb (
 
   always_comb begin
     case (comb_type)
+      COMB_NONE: out = '0;
       COMB_L: out = l;
       COMB_HALF: out = {h_half, l_half};
       COMB_BYTE: out = {h_byte, l_byte};

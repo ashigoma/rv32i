@@ -10,8 +10,8 @@ module rv32i (
   logic [31:0] mem[0:255];
   int bin_file;
 
-  logic [31:0] pc_reg;
-  logic [31:0] pc_next, pc_in, pc, inst, wb;
+  logic [31:0] pc;
+  logic [31:0] pc_next, pc_in, inst, wb;
   logic [31:0] imm_i, imm_s, imm_b, imm_u, imm_j;
 
   wire [11:0] inst_31_20 = inst[31:20];
@@ -34,7 +34,6 @@ module rv32i (
   comb_type_e ctl_comb;
   logic ctl_branch, ctl_reg_we, ctl_ram_we, ctl_skip_ram;
 
-  // register file access
   wire [4:0] rs1 = inst[19:15];
   wire [4:0] rs2 = inst[24:20];
   wire [4:0] rs3 = inst[11:7];
@@ -163,10 +162,18 @@ module rv32i (
 
   always_ff @(posedge clk or posedge rst) begin
     if (rst) begin
-      pc_reg <= 32'h80000000;
+      pc <= 32'h80000000;
     end else begin
-      pc_reg <= pc_in;
+      pc <= pc_in;
     end
+  end
+
+  always @(posedge clk) begin
+`ifndef SYNTHESIS
+    if (!rst) begin
+      $fdisplay(trace_fd, "pc: %08h", pc);
+    end
+`endif
   end
 
   always_comb begin

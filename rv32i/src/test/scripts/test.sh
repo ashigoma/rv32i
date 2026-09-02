@@ -11,9 +11,10 @@ SPIKE_TRACE="${BASE_PATH}.trace.sim.log"
 SPIKE_LOG="${BASE_PATH}.sim.log"
 SV_TRACE="${BASE_PATH}.trace.sv.log"
 SV_LOG="${BASE_PATH}.sv.log"
+SV_VCD="${BASE_PATH}.vcd"
 
 "$THIS_DIR"/run_spike.sh "$ELF_PATH" "$SPIKE_TRACE" "$SPIKE_LOG"
-"$THIS_DIR"/run_sv.sh "$BIN_PATH" "$SV_TRACE" "$SV_LOG"
+"$THIS_DIR"/run_sv.sh "$BIN_PATH" "$SV_TRACE" "$SV_LOG" "$SV_VCD"
 "$THIS_DIR"/convert_log_spike.sh "$SPIKE_TRACE"
 "$THIS_DIR"/convert_log_sv.sh "$SV_TRACE"
 

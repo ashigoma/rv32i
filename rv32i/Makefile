@@ -1,10 +1,10 @@
-.PHONY: all clean
+.PHONY: all check clean
 
 all:
 	$(MAKE) -C src/test
 	$(MAKE) -C src/cpu
 
-check: all
+check:
 	$(MAKE) -C src/test check
 
 clean:
