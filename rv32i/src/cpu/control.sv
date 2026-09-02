@@ -22,6 +22,12 @@ module control (
         {sel_3, comb} = {SEL_R1, COMB_L};
         {skip_ram, ext, ram_we, reg_we} = {1'b1, EXT_NONE, 1'b0, 1'b1};
       end
+      OP_AUIPC: begin
+        // rd = imm_u + pc
+        {alu, sel_1, sel_2} = {ALU_ADD, SEL_IMM_U, SEL_PC};
+        {sel_3, comb} = {SEL_R1, COMB_L};
+        {skip_ram, ext, ram_we, reg_we} = {1'b1, EXT_NONE, 1'b0, 1'b1};
+      end
       OP_ADDI: begin
         // rd = r1 + imm_i
         {alu, sel_1, sel_2} = {ALU_ADD, SEL_R1, SEL_IMM_I};
