@@ -32,10 +32,12 @@ module rv32i (
   ext_type_e  ctl_ext;
   comb_type_e ctl_comb;
   logic ctl_branch, ctl_reg_we, ctl_ram_we, ctl_skip_ram;
+  logic ctl_link_reg;
 
   wire [4:0] rs1 = inst[19:15];
   wire [4:0] rs2 = inst[24:20];
   wire [4:0] rs3 = inst[11:7];
+  logic [31:0] reg_wdata;
 
   logic [31:0] r1, r2;
   logic [31:0] alu_a, alu_b, d3;
@@ -58,6 +60,7 @@ module rv32i (
       .ext(ctl_ext),
       .comb(ctl_comb),
       .skip_ram(ctl_skip_ram),
+      .link_reg(ctl_link_reg),
       .ram_we(ctl_ram_we),
       .reg_we(ctl_reg_we)
   );
@@ -69,7 +72,7 @@ module rv32i (
       .r2 (r2),
 
       .rs3(rs3),
-      .wdata(wb),
+      .wdata(reg_wdata),
       .we(ctl_reg_we),
 
       .clk(clk),
@@ -151,7 +154,7 @@ module rv32i (
   always @(posedge clk) begin
     if (!rst) begin
       if (ctl_reg_we) begin
-        $fdisplay(trace_fd, "(0x%08h) x%0d = 0x%08h", addr, rs3, wb);
+        $fdisplay(trace_fd, "(0x%08h) x%0d = 0x%08h", addr, rs3, reg_wdata);
       end else if (ctl_ram_we) begin
         $fdisplay(trace_fd, "(0x%08h) [%08h] = 0x%08h", addr, alu_out, ram_wdata);
       end else begin
@@ -162,6 +165,12 @@ module rv32i (
   end
 
   always_comb begin
+    // branch control
+    case (op)
+      OP_JAL:  ctl_branch = 1'b1;
+      default: ctl_branch = 1'b0;
+    endcase
+
     // instruction fetch
     addr = pc;
     inst = data;
@@ -178,7 +187,7 @@ module rv32i (
     imm_s = 32'($signed({inst_31_25, inst_11_7}));
     imm_b = 32'($signed({inst_31, inst_7, inst_30_25, inst_11_8}));
     imm_u = 32'(inst_31_12 << 12);
-    imm_j = 32'($signed({inst_31, inst_19_12, inst_20, inst_30_21}));
+    imm_j = 32'($signed({inst_31, inst_19_12, inst_20, inst_30_21, 1'b0}));
 
     // skip ram
     if (ctl_skip_ram) begin
@@ -187,6 +196,12 @@ module rv32i (
       ext_in = ram_out;
     end
 
+    // register write back
+    if (ctl_link_reg) begin
+      reg_wdata = pc_next;
+    end else begin
+      reg_wdata = wb;
+    end
   end
 
 endmodule
