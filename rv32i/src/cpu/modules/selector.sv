@@ -3,15 +3,15 @@
 // selector
 
 module selector (
-    input  logic [31:0] pc,
-    input  logic [31:0] imm_i,
-    input  logic [31:0] imm_s,
-    input  logic [31:0] imm_b,
-    input  logic [31:0] imm_u,
-    input  logic [31:0] imm_j,
-    input  logic [31:0] r1,
-    input  logic [31:0] r2,
-    input  logic [ 4:0] sel,
+    input logic [31:0] pc,
+    input logic [31:0] imm_i,
+    input logic [31:0] imm_s,
+    input logic [31:0] imm_b,
+    input logic [31:0] imm_u,
+    input logic [31:0] imm_j,
+    input logic [31:0] r1,
+    input logic [31:0] r2,
+    input sel_e sel,
     output logic [31:0] out
 );
   always_comb begin

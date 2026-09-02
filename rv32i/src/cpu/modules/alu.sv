@@ -2,9 +2,9 @@
 
 
 module alu (
-    input  logic [31:0] a,
-    input  logic [31:0] b,
-    input  logic [ 4:0] op_type,
+    input logic [31:0] a,
+    input logic [31:0] b,
+    input alu_type_e op_type,
     output logic [31:0] out
 );
 

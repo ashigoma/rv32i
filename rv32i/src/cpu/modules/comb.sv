@@ -2,9 +2,9 @@
 
 
 module comb (
-    input  logic [31:0] l,
-    input  logic [31:0] h,
-    input  logic [ 4:0] comb_type,
+    input logic [31:0] l,
+    input logic [31:0] h,
+    input comb_type_e comb_type,
     output logic [31:0] out
 );
   logic [15:0] h_half = h[31:16];

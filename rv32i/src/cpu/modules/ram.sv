@@ -13,8 +13,8 @@ module ram (
   localparam ADR_START = 32'h90000000;
   localparam MEM_SIZE = 32'h00010000;
 
-  logic [8:0] mem[256 * 256];
-  logic [15:0] adr_offset;
+  logic [7:0] mem[256 * 256];
+  logic [31:0] adr_offset;
 
   always_ff @(posedge clk) begin
     begin

@@ -93,7 +93,7 @@ module op_decode (
           default: op = OP_NONE;
         endcase
       end
-      7'b0110011: op = OP_PAUSE;  // no FENCE
+      7'b0001111: op = OP_PAUSE;  // no FENCE
       7'b1110011: op = OP_EBREAK;  // no ECALL
       default: op = OP_NONE;
     endcase
