@@ -177,7 +177,7 @@ module rv32i (
     imm_i = 32'($signed(inst_31_20));
     imm_s = 32'($signed({inst_31_25, inst_11_7}));
     imm_b = 32'($signed({inst_31, inst_7, inst_30_25, inst_11_8}));
-    imm_u = 32'($signed(inst_31_12));
+    imm_u = 32'(inst_31_12 << 12);
     imm_j = 32'($signed({inst_31, inst_19_12, inst_20, inst_30_21}));
 
     // skip ram
