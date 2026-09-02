@@ -3,12 +3,11 @@
 module rv32i (
     input logic clk,
     input logic rst,
-    input int   trace_fd,
-    input int   log_fd
+    output logic [31:0] addr,
+    input logic [31:0] data,
+    input int trace_fd,
+    input int log_fd
 );
-  string exec_file;
-  logic [31:0] mem[0:255];
-  int bin_file;
 
   logic [31:0] pc;
   logic [31:0] pc_next, pc_in, inst, wb;
@@ -141,25 +140,6 @@ module rv32i (
       .out(wb)
   );
 
-  initial begin
-    if (!$value$plusargs("EXEC=%s", exec_file)) begin
-      exec_file = "program.bin";
-      #1;
-
-      bin_file = $fopen(exec_file, "rb");
-      $fread(mem, bin_file);
-      $fclose(bin_file);
-    end else begin
-      $fdisplay(log_fd, "Error: Cannot open %s", exec_file);
-    end
-
-    for (int i = 0; i < 256; i++) begin
-      if (mem[i] !== 32'bx) begin
-        $fdisplay(trace_fd, "%08h: %08h", i * 4, mem[i]);
-      end
-    end
-  end
-
   always_ff @(posedge clk or posedge rst) begin
     if (rst) begin
       pc <= 32'h80000000;
@@ -169,16 +149,23 @@ module rv32i (
   end
 
   always @(posedge clk) begin
-`ifndef SYNTHESIS
     if (!rst) begin
-      $fdisplay(trace_fd, "pc: %08h", pc);
+      if (ctl_reg_we) begin
+        $fdisplay(trace_fd, "(0x%08h) x%0d = 0x%08h", addr, rs3, wb);
+      end else if (ctl_ram_we) begin
+        $fdisplay(trace_fd, "(0x%08h) [%08h] = 0x%08h", addr, alu_out, ram_wdata);
+      end else begin
+        $fdisplay(trace_fd, "(0x%08h) inst: 0x%08h", addr, inst);
+      end
+      if (op == OP_EBREAK) $finish;
     end
-`endif
   end
 
   always_comb begin
     // instruction fetch
-    inst = mem[pc-32'h80000000];
+    addr = pc;
+    inst = data;
+
     pc_next = pc + 32'h00000004;
     if (ctl_branch) begin
       pc_in = wb;

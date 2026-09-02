@@ -7,7 +7,15 @@ LINTER := verilator --lint-only
 VVP := $(BUILD_DIR)/rv32i.vvp
 FLAGS := -g2012
 
-all:
-	$(LINTER) $(SRCS)
+.PHONY: all lint format
+
+all: format lint $(VVP)
+
+format:
 	$(FORMATTER) $(SRCS)
+
+lint:
+	$(LINTER) $(SRCS)
+
+$(VVP): $(SRCS)
 	iverilog $(FLAGS) -o $(VVP) $(SRCS)

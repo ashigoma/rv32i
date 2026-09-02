@@ -5,9 +5,9 @@ module op_decode (
     output op_e op
 );
 
-  logic [6:0] opcode = inst[6:0];
-  logic [2:0] funct3 = inst[14:12];
-  logic [6:0] funct7 = inst[31:25];
+  wire [6:0] opcode = inst[6:0];
+  wire [2:0] funct3 = inst[14:12];
+  wire [6:0] funct7 = inst[31:25];
 
   always_comb begin
     case (opcode)

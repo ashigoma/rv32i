@@ -4,7 +4,6 @@
 
 # ビルドと実行
 ```
-make
 make check
 ```
 
