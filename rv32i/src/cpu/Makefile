@@ -18,4 +18,4 @@ lint:
 
 main: $(SRCS)
 	mkdir -p $(BUILD_DIR)
-	verilator --binary -j 0 --Mdir $(BUILD_DIR) -o main --top-module main $(SRCS)
+	verilator --binary --trace -j 0 --Mdir $(BUILD_DIR) -o main --top-module main $(SRCS)
