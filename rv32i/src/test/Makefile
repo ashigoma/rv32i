@@ -38,4 +38,4 @@ $(BUILD_DIR)/%.elf: $(TEST_DIR)/%.S $(BOOT_S) $(LIB_SRCS) $(LINKER_SCRIPT)
 
 $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf
 	$(OBJCOPY) -O binary $< $@
-	$(OBJDUMP) -d $< > $(BUILD_DIR)/$*.dis
+	$(OBJDUMP) -D $< > $(BUILD_DIR)/$*.dis
