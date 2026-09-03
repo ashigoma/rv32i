@@ -38,19 +38,20 @@ label_branch:
     xori    a4, a0, 0xff
     ori     a5, a0, 0x0f
     andi    a6, a0, 0xf0
-    addi    a0, zero, -1
 
+    addi    a0, zero, -1
     slli    a7, a0, 2
     srli    t0, a0, 2
     srai    t1, a0, 2
-    j end
 
     add     t2, a0, a1
     sub     t3, a0, a1
     sll     t4, a0, a1
     slt     t5, a0, a1
     sltu    t6, a0, a1
+    
     xor     a2, a0, a1
+    j end
     srl     a3, a0, a1
     sra     a4, a0, a1
     or      a5, a0, a1

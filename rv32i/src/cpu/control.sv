@@ -166,6 +166,46 @@ module control (
         {alu, sel_1, sel_2} = {ALU_SUB, SEL_R1, SEL_R2};
         {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b1};
       end
+      OP_SLL: begin
+        // rd = (rs1 << rs2[4:0]) (論理)
+        {alu, sel_1, sel_2} = {ALU_SLL, SEL_R1, SEL_R2};
+        {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b1};
+      end
+      OP_SLT: begin
+        // rd = (rs1 < rs2 (signed)) ? 1 : 0
+        {alu, sel_1, sel_2} = {ALU_SLT, SEL_R1, SEL_R2};
+        {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b1};
+      end
+      OP_SLTU: begin
+        // rd = (rs1 < rs2 (unsigned)) ? 1 : 0
+        {alu, sel_1, sel_2} = {ALU_SLTU, SEL_R1, SEL_R2};
+        {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b1};
+      end
+      OP_XOR: begin
+        // rd = rs1 xor rs2
+        {alu, sel_1, sel_2} = {ALU_XOR, SEL_R1, SEL_R2};
+        {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b1};
+      end
+      OP_SRL: begin
+        // rd = (rs1 >> rs2[4:0]) (論理)
+        {alu, sel_1, sel_2} = {ALU_SRL, SEL_R1, SEL_R2};
+        {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b1};
+      end
+      OP_SRA: begin
+        // rd = (rs1 >> rs2[4:0]) (算術)
+        {alu, sel_1, sel_2} = {ALU_SRA, SEL_R1, SEL_R2};
+        {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b1};
+      end
+      OP_OR: begin
+        // rd = rs1 or rs2
+        {alu, sel_1, sel_2} = {ALU_OR, SEL_R1, SEL_R2};
+        {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b1};
+      end
+      OP_AND: begin
+        // rd = rs1 and rs2
+        {alu, sel_1, sel_2} = {ALU_AND, SEL_R1, SEL_R2};
+        {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b1};
+      end
       default: begin
         {alu, sel_1, sel_2} = {ALU_NONE, SEL_R1, SEL_R1};
         {sel_3, comb} = {SEL_R1, COMB_L};
