@@ -7,10 +7,10 @@ module comb (
     input comb_type_e comb_type,
     output logic [31:0] out
 );
-  logic [15:0] h_half = h[31:16];
-  logic [23:0] h_byte = h[31:8];
-  logic [15:0] l_half = l[15:0];
-  logic [ 7:0] l_byte = l[7:0];
+  wire [15:0] h_half = h[31:16];
+  wire [23:0] h_byte = h[31:8];
+  wire [15:0] l_half = l[15:0];
+  wire [ 7:0] l_byte = l[7:0];
 
   always_comb begin
     case (comb_type)

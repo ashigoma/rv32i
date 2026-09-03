@@ -3,7 +3,7 @@
 module rv32i (
     input logic clk,
     input logic rst,
-    output logic [31:0] addr,
+    output logic [31:0] adr,
     input logic [31:0] data,
     input int trace_fd,
     input int log_fd
@@ -132,7 +132,7 @@ module rv32i (
 
   comb comb_ (
       .l(d3),
-      .h(wb),
+      .h(ram_out),
       .comb_type(ctl_comb),
       .out(ram_wdata)
   );
@@ -153,19 +153,29 @@ module rv32i (
 
   always @(posedge clk) begin
     if (!rst) begin
+      if (op == OP_EBREAK) $finish;
       if (ctl_reg_we) begin
         if (rs3 == '0) begin
         end else if (ctl_skip_ram) begin
-          $fdisplay(trace_fd, "(0x%08h) x%0d = 0x%08h", addr, rs3, reg_wdata);
+          $fdisplay(trace_fd, "(0x%08h) x%0d = 0x%08h", adr, rs3, reg_wdata);
         end else begin
-          $fdisplay(trace_fd, "(0x%08h) x%0d = [0x%08h]", addr, rs3, alu_out);
+          case (ctl_comb)
+            COMB_BYTE: $fdisplay(trace_fd, "(0x%08h) x%0d = [0x%02h]", adr, rs3, alu_out[7:0]);
+            COMB_HALF: $fdisplay(trace_fd, "(0x%08h) x%0d = [0x%04h]", adr, rs3, alu_out[15:0]);
+            default:   $fdisplay(trace_fd, "(0x%08h) x%0d = [0x%08h]", adr, rs3, alu_out);
+          endcase
         end
       end else if (ctl_ram_we) begin
-        $fdisplay(trace_fd, "(0x%08h) [0x%08h] = 0x%08h", addr, alu_out, ram_wdata);
+        case (ctl_comb)
+          COMB_BYTE:
+          $fdisplay(trace_fd, "(0x%08h) [0x%08h] = 0x%02h", adr, alu_out, ram_wdata[7:0]);
+          COMB_HALF:
+          $fdisplay(trace_fd, "(0x%08h) [0x%08h] = 0x%04h", adr, alu_out, ram_wdata[15:0]);
+          default: $fdisplay(trace_fd, "(0x%08h) [0x%08h] = 0x%08h", adr, alu_out, ram_wdata);
+        endcase
       end else begin
-        $fdisplay(trace_fd, "(0x%08h) inst: 0x%08h", addr, inst);
+        $fdisplay(trace_fd, "(0x%08h) inst: 0x%08h", adr, inst);
       end
-      if (op == OP_EBREAK) $finish;
     end
   end
 
@@ -178,7 +188,7 @@ module rv32i (
     endcase
 
     // instruction fetch
-    addr = pc;
+    adr = pc;
     inst = data;
 
     pc_next = pc + 32'h00000004;

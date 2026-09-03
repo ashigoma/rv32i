@@ -43,6 +43,12 @@ module control (
         {alu, sel_1, sel_2} = {ALU_ADD, SEL_R1, SEL_IMM_I};
         {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b0, 1'b0, EXT_NONE, 1'b0, 1'b1};
       end
+      OP_SB: begin
+        // [rs1 + imm_s] = rs2 (store byte)
+        {alu, sel_1, sel_2} = {ALU_ADD, SEL_R1, SEL_IMM_S};
+        {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b1, 1'b0};
+        {sel_3, comb} = {SEL_R2, COMB_BYTE};
+      end
       OP_SW: begin
         // [rs1 + imm_s] = rs2
         {alu, sel_1, sel_2} = {ALU_ADD, SEL_R1, SEL_IMM_S};
@@ -62,7 +68,7 @@ module control (
       default: begin
         {alu, sel_1, sel_2} = {ALU_A, SEL_R1, SEL_R1};
         {sel_3, comb} = {SEL_R1, COMB_L};
-        {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b1};
+        {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b0};
       end
     endcase
   end

@@ -12,7 +12,7 @@ module main;
 
   logic [31:0] mem[0:255];
   int bin_file;
-  logic [31:0] addr, data;
+  logic [31:0] adr, data;
   logic [31:0] mem_index, data_raw;
 
   initial begin
@@ -55,7 +55,7 @@ module main;
   end
 
   always_comb begin
-    mem_index = (addr - 32'h80000000) >> 2;
+    mem_index = (adr - 32'h80000000) >> 2;
     data_raw = mem[mem_index];
     data = (data_raw >> 24) | 
            ((data_raw >> 8) & 32'h0000FF00) | 
@@ -66,7 +66,7 @@ module main;
   rv32i rv32i_ (
       .clk     (clk),
       .rst     (rst),
-      .addr    (addr),
+      .adr     (adr),
       .data    (data),
       .trace_fd(trace_fd),
       .log_fd  (log_fd)
