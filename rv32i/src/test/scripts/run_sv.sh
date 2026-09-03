@@ -1,1 +1,1 @@
-"$(dirname $0)"/../../../build/main +EXEC=$1 +TRACE_FILE=$2 +LOG_FILE=$3 +VCD_FILE=$4
+"$(dirname $0)"/../../../build/main +EXEC=$1 +TRACE_FILE=$2 +LOG_FILE=$3 +VCD_FILE=$4 > /dev/null

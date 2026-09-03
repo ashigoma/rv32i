@@ -1,1 +1,1 @@
-sed -i -e "/VCD info:/d" -e "/\$finish called/d" $1
+sed -i.bak -e "/VCD info:/d" -e "/\$finish called/d" "$1" && rm -f "$1.bak"
