@@ -195,6 +195,8 @@ module rv32i (
       OP_BNE:  ctl_branch = (r1 != r2);
       OP_BLT:  ctl_branch = ($signed(r1) < $signed(r2));
       OP_BGE:  ctl_branch = ($signed(r1) >= $signed(r2));
+      OP_BLTU: ctl_branch = ($unsigned(r1) < $unsigned(r2));
+      OP_BGEU: ctl_branch = ($unsigned(r1) >= $unsigned(r2));
       default: ctl_branch = 1'b0;
     endcase
 

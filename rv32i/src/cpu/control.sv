@@ -49,12 +49,22 @@ module control (
         {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b0};
       end
       OP_BLT: begin
-        // if (rs1 > rs2) pc = pc + imm_b
+        // if (rs1 > rs2, signed) pc = pc + imm_b
         {alu, sel_1, sel_2} = {ALU_ADD, SEL_PC, SEL_IMM_B};
         {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b0};
       end
       OP_BGE: begin
-        // if (rs1 >= rs2) pc = pc + imm_b
+        // if (rs1 >= rs2, signed) pc = pc + imm_b
+        {alu, sel_1, sel_2} = {ALU_ADD, SEL_PC, SEL_IMM_B};
+        {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b0};
+      end
+      OP_BLTU: begin
+        // if (rs1 > rs2, unsigned) pc = pc + imm_b
+        {alu, sel_1, sel_2} = {ALU_ADD, SEL_PC, SEL_IMM_B};
+        {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b0};
+      end
+      OP_BGEU: begin
+        // if (rs1 >= rs2, unsigned) pc = pc + imm_b
         {alu, sel_1, sel_2} = {ALU_ADD, SEL_PC, SEL_IMM_B};
         {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b0};
       end
@@ -62,6 +72,11 @@ module control (
         // rd = [rs1 + imm_i] (load byte signed)
         {alu, sel_1, sel_2} = {ALU_ADD, SEL_R1, SEL_IMM_I};
         {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b0, 1'b0, EXT_SIGN_BYTE, 1'b0, 1'b1};
+      end
+      OP_LH: begin
+        // rd = [rs1 + imm_i] (load half signed)
+        {alu, sel_1, sel_2} = {ALU_ADD, SEL_R1, SEL_IMM_I};
+        {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b0, 1'b0, EXT_SIGN_HALF, 1'b0, 1'b1};
       end
       OP_LW: begin
         // rd = [rs1 + imm_i]
@@ -73,11 +88,22 @@ module control (
         {alu, sel_1, sel_2} = {ALU_ADD, SEL_R1, SEL_IMM_I};
         {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b0, 1'b0, EXT_ZERO_BYTE, 1'b0, 1'b1};
       end
+      OP_LHU: begin
+        // rd = [rs1 + imm_i] (load half unsigned)
+        {alu, sel_1, sel_2} = {ALU_ADD, SEL_R1, SEL_IMM_I};
+        {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b0, 1'b0, EXT_ZERO_HALF, 1'b0, 1'b1};
+      end
       OP_SB: begin
         // [rs1 + imm_s] = rs2 (store byte)
         {alu, sel_1, sel_2} = {ALU_ADD, SEL_R1, SEL_IMM_S};
         {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b1, 1'b0};
         {sel_3, comb} = {SEL_R2, COMB_BYTE};
+      end
+      OP_SH: begin
+        // [rs1 + imm_s] = rs2 (store half)
+        {alu, sel_1, sel_2} = {ALU_ADD, SEL_R1, SEL_IMM_S};
+        {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b1, 1'b0};
+        {sel_3, comb} = {SEL_R2, COMB_HALF};
       end
       OP_SW: begin
         // [rs1 + imm_s] = rs2
@@ -90,14 +116,14 @@ module control (
         {alu, sel_1, sel_2} = {ALU_ADD, SEL_R1, SEL_IMM_I};
         {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b1};
       end
-      OP_ANDI: begin
-        // rd = rs1 xor imm_i
-        {alu, sel_1, sel_2} = {ALU_AND, SEL_R1, SEL_IMM_I};
-        {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b1};
-      end
       OP_XORI: begin
         // rd = rs1 xor imm_i
         {alu, sel_1, sel_2} = {ALU_XOR, SEL_R1, SEL_IMM_I};
+        {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b1};
+      end
+      OP_ANDI: begin
+        // rd = rs1 xor imm_i
+        {alu, sel_1, sel_2} = {ALU_AND, SEL_R1, SEL_IMM_I};
         {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b1};
       end
       OP_SLTIU: begin
