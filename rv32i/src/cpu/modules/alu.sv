@@ -14,6 +14,9 @@ module alu (
       ALU_A: out = a;
       ALU_ADD: out = a + b;
       ALU_SUB: out = a - b;
+      ALU_AND: out = a & b;
+      ALU_XOR: out = a ^ b;
+      ALU_SLT: out = (a < b) ? 32'b1 : 32'b0;
     endcase
   end
 
