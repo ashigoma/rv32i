@@ -23,9 +23,8 @@ if diff -q "$SPIKE_TRACE" "$SV_TRACE" > /dev/null; then
 else
     echo -e "\033[31m[fail] $NAME\033[0m"
     echo "output diff:"
-    diff -u "$SPIKE_TRACE" "$SV_TRACE" \
-        | sed -E '/^(---|\+\+\+|@@)/d' \
-        | sed -e "s/^\+.*/$(printf '\033[32m')&$(printf '\033[0m')/" \
-              -e "s/^\-.*/$(printf '\033[31m')&$(printf '\033[0m')/" || true
+    echo
+    "$THIS_DIR"/diff.sh "$SPIKE_TRACE" "$SV_TRACE"
+    echo
     exit 1
 fi

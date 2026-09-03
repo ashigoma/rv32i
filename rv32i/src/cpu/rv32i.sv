@@ -172,7 +172,7 @@ module rv32i (
           $fdisplay(trace_fd, "(0x%08h) [0x%08h] = 0x%04h", adr, alu_out, ram_wdata[15:0]);
           default: $fdisplay(trace_fd, "(0x%08h) [0x%08h] = 0x%08h", adr, alu_out, ram_wdata);
         endcase
-      end else begin
+      end else if (ctl_alu == ALU_NONE) begin
         $fdisplay(trace_fd, "(0x%08h) inst: 0x%08h", adr, inst);
       end
 
@@ -194,7 +194,8 @@ module rv32i (
     case (op)
       OP_JAL:  ctl_branch = 1'b1;
       OP_JALR: ctl_branch = 1'b1;
-      OP_BNE:  ctl_branch = (r1 != r2) ? 1'b1 : 1'b0;
+      OP_BNE:  ctl_branch = (r1 != r2);
+      OP_BGE:  ctl_branch = ($signed(r1) >= $signed(r2));
       default: ctl_branch = 1'b0;
     endcase
 
@@ -212,7 +213,7 @@ module rv32i (
     // imm
     imm_i = 32'($signed(inst_31_20));
     imm_s = 32'($signed({inst_31_25, inst_11_7}));
-    imm_b = 32'($signed({inst_31, inst_7, inst_30_25, inst_11_8}));
+    imm_b = 32'($signed({inst_31, inst_7, inst_30_25, inst_11_8, 1'b0}));
     imm_u = 32'(inst_31_12 << 12);
     imm_j = 32'($signed({inst_31, inst_19_12, inst_20, inst_30_21, 1'b0}));
 

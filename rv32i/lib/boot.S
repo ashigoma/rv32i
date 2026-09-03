@@ -3,7 +3,17 @@
 
 _start:
     # .dataのコピー
-    # まだ
+    la t0, _sidata
+    la t1, _sdata
+    la t2, _edata
+1:
+    bge t1, t2, 2f
+    lw  t3, 0(t0)
+    sw  t3, 0(t1)
+    addi t0, t0, 4
+    addi t1, t1, 4
+    j   1b
+2:
     
     # .bssのクリア
     # まだ
