@@ -153,7 +153,10 @@ module rv32i (
 
   always @(posedge clk) begin
     if (!rst) begin
+      // halt
       if (op == OP_EBREAK) $finish;
+
+      // trace log
       if (ctl_reg_we) begin
         if (rs3 == '0) begin
         end else if (ctl_skip_ram) begin
@@ -171,6 +174,17 @@ module rv32i (
         endcase
       end else begin
         $fdisplay(trace_fd, "(0x%08h) inst: 0x%08h", adr, inst);
+      end
+
+      // stdout
+      if (ctl_ram_we) begin
+        if (alu_out == 32'h20000000) begin
+          $fdisplay(log_fd, "%c", ram_wdata[7:0]);
+        end else if (alu_out == 32'h20000004) begin
+          $fdisplay(log_fd, "%08h", ram_wdata);
+        end else if (alu_out == 32'h20000008) begin
+          $fdisplay(log_fd, "%0d", ram_wdata);
+        end
       end
     end
   end
