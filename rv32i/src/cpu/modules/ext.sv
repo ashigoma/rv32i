@@ -7,8 +7,8 @@ module ext (
     output logic [31:0] out
 );
 
-  logic [15:0] half_data = data[15:0];
-  logic [ 7:0] byte_data = data[7:0];
+  wire [15:0] half_data = data[15:0];
+  wire [ 7:0] byte_data = data[7:0];
 
   always_comb begin
     case (ext_type)
@@ -17,7 +17,6 @@ module ext (
       EXT_ZERO_BYTE: out = {24'b0, byte_data};
       EXT_SIGN_HALF: out = 32'($signed(half_data));
       EXT_SIGN_BYTE: out = 32'($signed(byte_data));
-      default: out = 32'hCCCCCCCC;
     endcase
   end
 

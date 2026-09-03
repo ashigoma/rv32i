@@ -159,11 +159,7 @@ module rv32i (
         end else if (ctl_skip_ram) begin
           $fdisplay(trace_fd, "(0x%08h) x%0d = 0x%08h", adr, rs3, reg_wdata);
         end else begin
-          case (ctl_comb)
-            COMB_BYTE: $fdisplay(trace_fd, "(0x%08h) x%0d = [0x%02h]", adr, rs3, alu_out[7:0]);
-            COMB_HALF: $fdisplay(trace_fd, "(0x%08h) x%0d = [0x%04h]", adr, rs3, alu_out[15:0]);
-            default:   $fdisplay(trace_fd, "(0x%08h) x%0d = [0x%08h]", adr, rs3, alu_out);
-          endcase
+          $fdisplay(trace_fd, "(0x%08h) x%0d = [0x%08h]", adr, rs3, alu_out);
         end
       end else if (ctl_ram_we) begin
         case (ctl_comb)

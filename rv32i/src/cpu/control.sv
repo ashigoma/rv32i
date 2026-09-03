@@ -38,10 +38,20 @@ module control (
         {alu, sel_1, sel_2} = {ALU_ADD, SEL_R1, SEL_IMM_I};
         {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b1, EXT_NONE, 1'b0, 1'b1};
       end
+      OP_LB: begin
+        // rd = [rs1 + imm_i] (load byte signed)
+        {alu, sel_1, sel_2} = {ALU_ADD, SEL_R1, SEL_IMM_I};
+        {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b0, 1'b0, EXT_SIGN_BYTE, 1'b0, 1'b1};
+      end
       OP_LW: begin
         // rd = [rs1 + imm_i]
         {alu, sel_1, sel_2} = {ALU_ADD, SEL_R1, SEL_IMM_I};
         {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b0, 1'b0, EXT_NONE, 1'b0, 1'b1};
+      end
+      OP_LBU: begin
+        // rd = [rs1 + imm_i] (load byte unsigned)
+        {alu, sel_1, sel_2} = {ALU_ADD, SEL_R1, SEL_IMM_I};
+        {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b0, 1'b0, EXT_ZERO_BYTE, 1'b0, 1'b1};
       end
       OP_SB: begin
         // [rs1 + imm_s] = rs2 (store byte)

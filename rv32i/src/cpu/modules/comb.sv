@@ -19,7 +19,6 @@ module comb (
       COMB_HALF: out = {h_half, l_half};
       COMB_BYTE: out = {h_byte, l_byte};
       COMB_H: out = h;
-      default: out = 32'hCCCCCCCC;
     endcase
   end
 

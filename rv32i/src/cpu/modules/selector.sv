@@ -25,7 +25,6 @@ module selector (
       SEL_IMM_J: out = imm_j;
       SEL_R1: out = r1;
       SEL_R2: out = r2;
-      default: out = 32'hCCCCCCCC;
     endcase
   end
 endmodule
