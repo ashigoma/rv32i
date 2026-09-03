@@ -47,7 +47,7 @@ module main;
     #20;
     rst = 1'b0;
 
-    #1000;
+    #100000;
     $fclose(trace_fd);
     $fclose(log_fd);
 
