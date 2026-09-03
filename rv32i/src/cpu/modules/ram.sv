@@ -13,14 +13,8 @@ module ram (
   localparam ADR_START = 32'h90000000;
   localparam MEM_SIZE = 32'h00010004;
 
-  logic [7:0] mem[MEM_SIZE];
+  logic [7:0] mem[MEM_SIZE] = '{default: 8'h00};
   logic [31:0] adr_offset;
-
-  initial begin
-    for (int i = 0; i < MEM_SIZE; i++) begin
-      mem[i] = '0;
-    end
-  end
 
   always_ff @(posedge clk) begin
     begin

@@ -4,12 +4,11 @@ BUILD_DIR := ../../build
 
 FORMATTER := verible-verilog-format --inplace
 LINTER := verilator --lint-only
-VVP := $(BUILD_DIR)/rv32i.vvp
 FLAGS := -g2012
 
 .PHONY: all lint format
 
-all: format lint $(VVP)
+all: format lint main
 
 format:
 	$(FORMATTER) $(SRCS)
@@ -17,6 +16,6 @@ format:
 lint:
 	$(LINTER) $(SRCS)
 
-$(VVP): $(SRCS)
+main: $(SRCS)
 	mkdir -p $(BUILD_DIR)
-	iverilog $(FLAGS) -o $(VVP) $(SRCS)
+	verilator --binary -j 0 --Mdir $(BUILD_DIR) -o main --top-module main $(SRCS)
