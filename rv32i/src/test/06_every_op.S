@@ -31,7 +31,6 @@ label_branch:
     sb      t3, 0(sp)
     sh      t4, 2(sp)
     sw      t5, 4(sp)
-    j end
 
     addi    a1, a0, 1
     slti    a2, a0, 10
@@ -39,9 +38,12 @@ label_branch:
     xori    a4, a0, 0xff
     ori     a5, a0, 0x0f
     andi    a6, a0, 0xf0
+    addi    a0, zero, -1
+
     slli    a7, a0, 2
     srli    t0, a0, 2
     srai    t1, a0, 2
+    j end
 
     add     t2, a0, a1
     sub     t3, a0, a1
