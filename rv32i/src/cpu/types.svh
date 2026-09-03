@@ -39,6 +39,8 @@ typedef enum {
   ALU_XOR,
   ALU_SLT,
   ALU_SLTU,
+  ALU_SLTI,
+  ALU_SLTIU,
   ALU_SLL,
   ALU_SRL,
   ALU_SRA

@@ -133,12 +133,12 @@ module control (
       end
       OP_SLTI: begin
         // rd = (rs1 < imm_i (signed)) ? 1 : 0
-        {alu, sel_1, sel_2} = {ALU_SLT, SEL_R1, SEL_IMM_I};
+        {alu, sel_1, sel_2} = {ALU_SLTI, SEL_R1, SEL_IMM_I};
         {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b1};
       end
       OP_SLTIU: begin
         // rd = (rs1 < imm_i (unsigned)) ? 1 : 0
-        {alu, sel_1, sel_2} = {ALU_SLTU, SEL_R1, SEL_IMM_I};
+        {alu, sel_1, sel_2} = {ALU_SLTIU, SEL_R1, SEL_IMM_I};
         {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b1};
       end
       OP_SLLI: begin
