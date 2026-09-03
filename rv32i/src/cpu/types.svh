@@ -32,7 +32,8 @@ typedef enum {
 typedef enum {
   ALU_NONE,
   ALU_A,
-  ALU_ADD
+  ALU_ADD,
+  ALU_SUB
 } alu_type_e;
 
 typedef enum {
