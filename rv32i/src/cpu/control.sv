@@ -43,6 +43,11 @@ module control (
         {alu, sel_1, sel_2} = {ALU_ADD, SEL_PC, SEL_IMM_B};
         {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b0};
       end
+      OP_BLT: begin
+        // if (rs1 > rs2) pc = pc + imm_b
+        {alu, sel_1, sel_2} = {ALU_ADD, SEL_PC, SEL_IMM_B};
+        {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b0};
+      end
       OP_BGE: begin
         // if (rs1 >= rs2) pc = pc + imm_b
         {alu, sel_1, sel_2} = {ALU_ADD, SEL_PC, SEL_IMM_B};
