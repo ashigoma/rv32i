@@ -3,10 +3,8 @@
 module rv32i (
     input logic clk,
     input logic rst,
-    output logic [31:0] adr,
-    input logic [31:0] data,
-    input int trace_fd,
-    input int log_fd
+    input int   trace_fd,
+    input int   log_fd
 );
 
   logic [31:0] pc;
@@ -122,12 +120,14 @@ module rv32i (
       .out(alu_out)
   );
 
-  ram ram_ (
-      .clk(clk),
-      .we(ctl_ram_we),
-      .adr(alu_out),
-      .wdata(ram_wdata),
-      .data(ram_out)
+  mem mem_ (
+      .clk  (clk),
+      .we2  (ctl_ram_we),
+      .adr1 (pc),
+      .adr2 (alu_out),
+      .data1(inst),
+      .data2(ram_out),
+      .wdata(ram_wdata)
   );
 
   comb comb_ (
@@ -158,20 +158,19 @@ module rv32i (
       end else if (ctl_reg_we) begin  // trace log
         if (rs3 == '0) begin
         end else if (ctl_skip_ram) begin
-          $fdisplay(trace_fd, "(0x%08h) x%0d = 0x%08h", adr, rs3, reg_wdata);
+          $fdisplay(trace_fd, "(0x%08h) x%0d = 0x%08h", pc, rs3, reg_wdata);
         end else begin
-          $fdisplay(trace_fd, "(0x%08h) x%0d = [0x%08h]", adr, rs3, alu_out);
+          $fdisplay(trace_fd, "(0x%08h) x%0d = [0x%08h]", pc, rs3, alu_out);
         end
       end else if (ctl_ram_we) begin
         case (ctl_comb)
-          COMB_BYTE:
-          $fdisplay(trace_fd, "(0x%08h) [0x%08h] = 0x%02h", adr, alu_out, ram_wdata[7:0]);
+          COMB_BYTE: $fdisplay(trace_fd, "(0x%08h) [0x%08h] = 0x%02h", pc, alu_out, ram_wdata[7:0]);
           COMB_HALF:
-          $fdisplay(trace_fd, "(0x%08h) [0x%08h] = 0x%04h", adr, alu_out, ram_wdata[15:0]);
-          default: $fdisplay(trace_fd, "(0x%08h) [0x%08h] = 0x%08h", adr, alu_out, ram_wdata);
+          $fdisplay(trace_fd, "(0x%08h) [0x%08h] = 0x%04h", pc, alu_out, ram_wdata[15:0]);
+          default: $fdisplay(trace_fd, "(0x%08h) [0x%08h] = 0x%08h", pc, alu_out, ram_wdata);
         endcase
       end else if (ctl_alu == ALU_NONE) begin
-        $fdisplay(trace_fd, "(0x%08h) inst: 0x%08h", adr, inst);
+        $fdisplay(trace_fd, "(0x%08h) inst: 0x%08h", pc, inst);
       end
 
       // stdout
@@ -197,10 +196,6 @@ module rv32i (
       OP_BGE:  ctl_branch = ($signed(r1) >= $signed(r2));
       default: ctl_branch = 1'b0;
     endcase
-
-    // instruction fetch
-    adr = pc;
-    inst = data;
 
     pc_next = pc + 32'h00000004;
     if (ctl_branch) begin

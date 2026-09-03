@@ -11,7 +11,6 @@ module main;
   int log_fd;
 
   logic [31:0] mem[0:255];
-  int bin_file;
   logic [31:0] adr, data;
   logic [31:0] mem_index, data_raw;
 
@@ -22,20 +21,9 @@ module main;
   end
 
   initial begin
-    if (!$value$plusargs("EXEC=%s", exec_file)) exec_file = "program.bin";
     if (!$value$plusargs("TRACE_FILE=%s", trace_file)) trace_file = "trace.log";
     if (!$value$plusargs("LOG_FILE=%s", log_file)) log_file = "stdout.log";
     if (!$value$plusargs("VCD_FILE=%s", vcd_file)) vcd_file = "rv32i.vcd";
-
-    bin_file = $fopen(exec_file, "rb");
-    if (bin_file == 0) begin
-      $display(log_fd, "error: cannot open file: %s", exec_file);
-    end else begin
-      int read_bytes;
-      read_bytes = $fread(mem, bin_file);
-      $fclose(bin_file);
-      $display("loaded %0d bytes", read_bytes);
-    end
 
     trace_fd = $fopen(trace_file, "w");
     log_fd   = $fopen(log_file, "w");
@@ -54,20 +42,9 @@ module main;
     $finish;
   end
 
-  always_comb begin
-    mem_index = (adr - 32'h80000000) >> 2;
-    data_raw = mem[mem_index];
-    data = (data_raw >> 24) | 
-           ((data_raw >> 8) & 32'h0000FF00) | 
-           ((data_raw << 8) & 32'h00FF0000) | 
-           (data_raw << 24);
-  end
-
   rv32i rv32i_ (
       .clk     (clk),
       .rst     (rst),
-      .adr     (adr),
-      .data    (data),
       .trace_fd(trace_fd),
       .log_fd  (log_fd)
   );
