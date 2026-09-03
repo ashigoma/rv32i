@@ -38,6 +38,11 @@ module control (
         {alu, sel_1, sel_2} = {ALU_ADD, SEL_R1, SEL_IMM_I};
         {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b1, EXT_NONE, 1'b0, 1'b1};
       end
+      OP_BNE: begin
+        // if (rs1 != rs2) pc = pc + imm_b
+        {alu, sel_1, sel_2} = {ALU_ADD, SEL_PC, SEL_IMM_B};
+        {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b0};
+      end
       OP_LB: begin
         // rd = [rs1 + imm_i] (load byte signed)
         {alu, sel_1, sel_2} = {ALU_ADD, SEL_R1, SEL_IMM_I};
@@ -66,12 +71,12 @@ module control (
         {sel_3, comb} = {SEL_R2, COMB_L};
       end
       OP_ADDI: begin
-        // rd = r1 + imm_i
+        // rd = rs1 + imm_i
         {alu, sel_1, sel_2} = {ALU_ADD, SEL_R1, SEL_IMM_I};
         {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b1};
       end
       OP_ADD: begin
-        // rd = r1 + r2
+        // rd = rs1 + rs2
         {alu, sel_1, sel_2} = {ALU_ADD, SEL_R1, SEL_R2};
         {skip_ram, link_reg, ext, ram_we, reg_we} = {1'b1, 1'b0, EXT_NONE, 1'b0, 1'b1};
       end

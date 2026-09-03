@@ -24,7 +24,7 @@ LDFLAGS := -T $(LINKER_SCRIPT) -Wl,--no-warn-rwx-segments
 all: $(ALL_ELFS) $(ALL_BINS)
 
 check: all
-	for bin in $(ALL_ELFS); do \
+	for bin in $(BUILD_DIR)/*.elf; do \
 		$(TEST_SCRIPT) $$bin || exit 1; \
 	done
 

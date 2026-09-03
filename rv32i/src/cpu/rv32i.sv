@@ -194,6 +194,7 @@ module rv32i (
     case (op)
       OP_JAL:  ctl_branch = 1'b1;
       OP_JALR: ctl_branch = 1'b1;
+      OP_BNE:  ctl_branch = (r1 != r2) ? 1'b1 : 1'b0;
       default: ctl_branch = 1'b0;
     endcase
 
