@@ -24,7 +24,7 @@ else
     echo -e "\033[31m[fail] $NAME\033[0m"
     echo "output diff:"
     echo
-    "$THIS_DIR"/diff.sh "$SPIKE_TRACE" "$SV_TRACE"
+    "$THIS_DIR"/diff.sh "$SPIKE_TRACE" "$SV_TRACE" 10
     echo
     exit 1
 fi

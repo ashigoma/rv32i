@@ -1,6 +1,8 @@
 #!/bin/sh
 
-awk '
+CTX="${3:-3}"
+
+awk -v ctx="$CTX" '
   NR == FNR {
     a[NR] = $0
     next
@@ -8,8 +10,9 @@ awk '
 
   {
     if (a[FNR] != $0) {
-      if (FNR > 4) printf "(%d lines)\n", FNR - 4
-      for (i = FNR - 3; i < FNR; i++) {
+      skip = FNR - ctx - 1
+      if (skip > 0) printf "(%d lines)\n", skip
+      for (i = FNR - ctx; i < FNR; i++) {
         if (i > 0) printf " %s\n", a[i]
       }
       printf "\033[31m-%s\033[0m\n", a[FNR]
@@ -26,8 +29,9 @@ awk '
     total1 = length(a)
 
     if (!mismatch && total2 < total1) {
-      if (total2 > 3) printf "(%d lines)\n", total2 - 3
-      for (i = total2 - 2; i <= total2; i++) {
+      skip = total2 - ctx
+      if (skip > 0) printf "(%d lines)\n", skip
+      for (i = total2 - ctx + 1; i <= total2; i++) {
         if (i > 0) printf " %s\n", a[i]
       }
       printf "\033[31m-%s\033[0m\n", a[total2 + 1]

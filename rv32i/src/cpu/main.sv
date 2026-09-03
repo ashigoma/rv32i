@@ -11,7 +11,6 @@ module main;
   int log_fd;
 
   logic [31:0] mem[0:255];
-  logic [31:0] adr, data;
   logic [31:0] mem_index, data_raw;
 
   initial begin

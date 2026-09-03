@@ -10,8 +10,6 @@ main:
     li      t1, 27
     add     a0, t0, t1
     call    print_int
-    li      a0, 10
-    call    print_char
     
     
     lw      ra, 12(sp)
