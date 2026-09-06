@@ -7,7 +7,7 @@ use std::fs;
 use std::process;
 
 fn main() {
-    let code = match fs::read_to_string("tests/fizzbuzz.ml") {
+    let code = match fs::read_to_string("tests/add.ml") {
         Ok(r) => r,
         Err(_) => {eprintln!("failed to open code"); process::exit(1)}
     };

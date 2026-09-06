@@ -1,0 +1,1 @@
+let f = fun a -> fun b -> fun c -> 2 in f (2 + 3) 4 "Hello"
