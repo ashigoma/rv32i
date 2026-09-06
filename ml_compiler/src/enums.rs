@@ -116,5 +116,6 @@ pub enum Expr {
   LETREC(Box<Expr>, Box<Expr>, Box<Expr>),
   FUN(Box<Expr>, Box<Expr>),
   IF(Box<Expr>, Box<Expr>, Box<Expr>),
-  SEMI(Box<Expr>, Box<Expr>)
+  SEMI(Box<Expr>, Box<Expr>),
+  APP(Box<Expr>, Box<Expr>),
 }

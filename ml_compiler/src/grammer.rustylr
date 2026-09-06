@@ -8,11 +8,12 @@ use crate::enums::Expr;
 %start Expr;
 
 %right Semi;
-%left Let Rec Eq In;
-%left Fun Arrow;
-%left If Then Else;
+%right Let_  LetRec_ Fun_ If_;
+%left Plus Minus Or And Geq Leq Gt Lt Eq Neq;
+%left Not;
+%left App_;
 %left Open Close;
-%left Plus Minus Or And Geq Leq Gt Lt Not Neq;
+%left Unit String Int Bool Id;
 
 %token Let Token::LET;
 %token Rec Token::REC;
@@ -42,7 +43,7 @@ use crate::enums::Expr;
 %token Bool Token::BOOL(_);
 %token Id Token::ID(_);
 
-Expr(Expr)
+ArgExpr(Expr)
     : Int {
         match Int {
             Token::INT(val) => Expr::INT(val),
@@ -69,7 +70,10 @@ Expr(Expr)
     }
     | Unit {Expr::UNIT}
     | Open e1=Expr Close {e1}
-    | e1=Expr Plus e2=Expr {Expr::ADD(Box::new(e1), Box::new(e2))}
+    ;
+
+Expr(Expr)
+    : e1=Expr Plus e2=Expr {Expr::ADD(Box::new(e1), Box::new(e2))}
     | e1=Expr Minus e2=Expr {Expr::SUB(Box::new(e1), Box::new(e2))}
     | e1=Expr Geq e2=Expr {Expr::GEQ(Box::new(e1), Box::new(e2))}
     | e1=Expr Leq e2=Expr {Expr::LEQ(Box::new(e1), Box::new(e2))}
@@ -79,9 +83,11 @@ Expr(Expr)
     | e1=Expr And e2=Expr {Expr::AND(Box::new(e1), Box::new(e2))}
     | e1=Expr Or e2=Expr {Expr::OR(Box::new(e1), Box::new(e2))}
     | Not e1=Expr {Expr::NOT(Box::new(e1))}
-    | Let e1=Expr Eq e2=Expr In e3=Expr {Expr::LET(Box::new(e1), Box::new(e2), Box::new(e3))}
-    | Let Rec e1=Expr Eq e2=Expr In e3=Expr {Expr::LETREC(Box::new(e1), Box::new(e2), Box::new(e3))}
-    | Fun e1=Expr Arrow e2=Expr {Expr::FUN(Box::new(e1), Box::new(e2))}
-    | If e1=Expr Then e2=Expr Else e3=Expr {Expr::IF(Box::new(e1), Box::new(e2), Box::new(e3))}
+    | Let e1=ArgExpr Eq e2=Expr In e3=Expr      %prec Let_      {Expr::LET(Box::new(e1), Box::new(e2), Box::new(e3))}
+    | Let Rec e1=ArgExpr Eq e2=Expr In e3=Expr  %prec LetRec_   {Expr::LETREC(Box::new(e1), Box::new(e2), Box::new(e3))}
+    | Fun e1=ArgExpr Arrow e2=Expr              %prec Fun_      {Expr::FUN(Box::new(e1), Box::new(e2))}
+    | If e1=Expr Then e2=Expr Else e3=Expr      %prec If_       {Expr::IF(Box::new(e1), Box::new(e2), Box::new(e3))}
     | e1=Expr Semi e2=Expr {Expr::SEMI(Box::new(e1), Box::new(e2))}
+    | e1=ArgExpr {e1}
+    | e1=Expr e2=ArgExpr                        %prec App_ {Expr::APP(Box::new(e1), Box::new(e2))}
     ;
