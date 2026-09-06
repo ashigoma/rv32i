@@ -1,0 +1,87 @@
+// https://crates.io/crates/rusty_lr
+
+use crate::enums::Token;
+use crate::enums::Expr;
+
+%%
+%tokentype Token;
+%start Expr;
+
+%right Semi;
+%left Let Rec Eq In;
+%left Fun Arrow;
+%left If Then Else;
+%left Open Close;
+%left Plus Minus Or And Geq Leq Gt Lt Not Neq;
+
+%token Let Token::LET;
+%token Rec Token::REC;
+%token Fun Token::FUN;
+%token Arrow Token::ARROW;
+%token In Token::IN;
+%token If Token::IF;
+%token Then Token::THEN;
+%token Else Token::ELSE;
+%token Geq Token::GEQ;
+%token Leq Token::LEQ;
+%token Gt Token::GT;
+%token Lt Token::LT;
+%token Eq Token::EQ;
+%token Neq Token::NEQ;
+%token Plus Token::PLUS;
+%token Minus Token::MINUS;
+%token And Token::AND;
+%token Or Token::OR;
+%token Not Token::NOT;
+%token Unit Token::UNIT;
+%token Open Token::OPEN;
+%token Close Token::CLOSE;
+%token Semi Token::SEMI;
+%token String Token::STRING(_);
+%token Int Token::INT(_);
+%token Bool Token::BOOL(_);
+%token Id Token::ID(_);
+
+Expr(Expr)
+    : Int {
+        match Int {
+            Token::INT(val) => Expr::INT(val),
+            _ => unreachable!(),
+        }
+    }
+    | Bool {
+        match Bool {
+            Token::BOOL(val) => Expr::BOOL(val),
+            _ => unreachable!(),
+        }
+    }
+    | String {
+        match String {
+            Token::STRING(val) => Expr::STRING(val),
+            _ => unreachable!(),
+        }
+    }
+    | Id {
+        match Id {
+            Token::ID(val) => Expr::ID(val),
+            _ => unreachable!(),
+        }
+    }
+    | Unit {Expr::UNIT}
+    | Open e1=Expr Close {e1}
+    | e1=Expr Plus e2=Expr {Expr::ADD(Box::new(e1), Box::new(e2))}
+    | e1=Expr Minus e2=Expr {Expr::SUB(Box::new(e1), Box::new(e2))}
+    | e1=Expr Geq e2=Expr {Expr::GEQ(Box::new(e1), Box::new(e2))}
+    | e1=Expr Leq e2=Expr {Expr::LEQ(Box::new(e1), Box::new(e2))}
+    | e1=Expr Gt e2=Expr {Expr::GT(Box::new(e1), Box::new(e2))}
+    | e1=Expr Lt e2=Expr {Expr::LT(Box::new(e1), Box::new(e2))}
+    | e1=Expr Eq e2=Expr {Expr::EQ(Box::new(e1), Box::new(e2))}
+    | e1=Expr And e2=Expr {Expr::AND(Box::new(e1), Box::new(e2))}
+    | e1=Expr Or e2=Expr {Expr::OR(Box::new(e1), Box::new(e2))}
+    | Not e1=Expr {Expr::NOT(Box::new(e1))}
+    | Let e1=Expr Eq e2=Expr In e3=Expr {Expr::LET(Box::new(e1), Box::new(e2), Box::new(e3))}
+    | Let Rec e1=Expr Eq e2=Expr In e3=Expr {Expr::LETREC(Box::new(e1), Box::new(e2), Box::new(e3))}
+    | Fun e1=Expr Arrow e2=Expr {Expr::FUN(Box::new(e1), Box::new(e2))}
+    | If e1=Expr Then e2=Expr Else e3=Expr {Expr::IF(Box::new(e1), Box::new(e2), Box::new(e3))}
+    | e1=Expr Semi e2=Expr {Expr::SEMI(Box::new(e1), Box::new(e2))}
+    ;

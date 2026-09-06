@@ -5,18 +5,24 @@
 (bool)
 (string)
 (unit)
-
 x
-e1 e2
+
+(e)
+
 e1 [+ -] e2 
 e1 [< <= > >= == !=] e2
 e1 [| &] e2
 !e1
 if e1 then e2 else e3
+
 let x = e1 in e2
-let rec x = e1 in e2
+
 fun x -> e
-(e)
+
+x e
+let rec x = e1 in e2
+e1; e2
+
 ```
 
 # 中間言語、アセンブリ

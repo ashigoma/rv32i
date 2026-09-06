@@ -3,6 +3,12 @@
 version = 4
 
 [[package]]
+name = "arrayvec"
+version = "0.7.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d3fb67a6e08acf24fdeccbac2cb6ac4305825bd1f117462e0e6f2f193345ad56"
+
+[[package]]
 name = "beef"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -58,6 +64,7 @@ name = "ml_compiler"
 version = "0.1.0"
 dependencies = [
  "logos",
+ "rusty_lr",
 ]
 
 [[package]]
@@ -83,6 +90,55 @@ name = "regex-syntax"
 version = "0.8.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4"
+
+[[package]]
+name = "rustc-hash"
+version = "2.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6b1e7f9a428571be2dc5bc0505c13fb6bf936822b894ec87abf8a08a4e51742d"
+
+[[package]]
+name = "rusty_lr"
+version = "4.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a3be9ce467746fce5546300c044c0f9f8ef35f013af63d7ef8cf875691b00d0a"
+dependencies = [
+ "rusty_lr_core",
+ "rusty_lr_derive",
+]
+
+[[package]]
+name = "rusty_lr_core"
+version = "4.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "06e6cbf94e3fd57a6940a368ab772783f2ba87c3d37b4a2a06e7bb2fe575125c"
+dependencies = [
+ "arrayvec",
+ "rustc-hash",
+]
+
+[[package]]
+name = "rusty_lr_derive"
+version = "2.53.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f9542ffaf982e1c4ec7b5082c21dbfda865f799f99e68e5bec36d6c5581b369e"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "rusty_lr_parser",
+]
+
+[[package]]
+name = "rusty_lr_parser"
+version = "4.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d914c8590d720524594147ec5badeae37bf0fa229e7858b6083cc7905a2435f1"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "rusty_lr_core",
+ "syn",
+]
 
 [[package]]
 name = "syn"

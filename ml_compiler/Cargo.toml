@@ -5,3 +5,7 @@ edition = "2024"
 
 [dependencies]
 logos = "0.14"
+rusty_lr = "4.7.0"
+
+[build-dependencies]
+rusty_lr = "4.7.0"
