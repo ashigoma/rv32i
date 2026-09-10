@@ -130,4 +130,5 @@ pub enum Type {
     FUN(Box<Type>, Box<Type>),
     ID(String),
     TYPEID(i32),
+    ERROR(String),
 }

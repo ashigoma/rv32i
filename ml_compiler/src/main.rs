@@ -8,7 +8,7 @@ use std::fs;
 use std::process;
 
 fn main() {
-    let code = match fs::read_to_string("tests/arith.ml") {
+    let code = match fs::read_to_string("tests/typing.ml") {
         Ok(r) => r,
         Err(_) => {
             eprintln!("failed to open code");
