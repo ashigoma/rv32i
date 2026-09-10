@@ -109,6 +109,7 @@ pub enum Expr {
     GT(Box<Expr>, Box<Expr>),
     LT(Box<Expr>, Box<Expr>),
     EQ(Box<Expr>, Box<Expr>),
+    NEQ(Box<Expr>, Box<Expr>),
     AND(Box<Expr>, Box<Expr>),
     OR(Box<Expr>, Box<Expr>),
     NOT(Box<Expr>),

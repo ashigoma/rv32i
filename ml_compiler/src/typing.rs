@@ -17,7 +17,7 @@ pub fn type_check(ast: Expr, env: Vec<(Type, Type)>) -> (Type, Vec<(Type, Type)>
                 (alpha.clone(), env2)
             }
         },
-        Expr::ADD(x, y) => {
+        Expr::ADD(x, y) | Expr::SUB(x, y) => {
             let (t1, c1) = type_check(*x, env.clone());
             let (t2, c2) = type_check(*y, env.clone());
             let mut env2 = env.clone();
@@ -26,6 +26,38 @@ pub fn type_check(ast: Expr, env: Vec<(Type, Type)>) -> (Type, Vec<(Type, Type)>
             env2.extend(c1);
             env2.extend(c2);
             (Type::INT, env2)
+        }
+        Expr::AND(x, y) | Expr::OR(x, y) => {
+            let (t1, c1) = type_check(*x, env.clone());
+            let (t2, c2) = type_check(*y, env.clone());
+            let mut env2 = env.clone();
+            env2.push((t1, Type::BOOL));
+            env2.push((t2, Type::BOOL));
+            env2.extend(c1);
+            env2.extend(c2);
+            (Type::BOOL, env2)
+        }
+        Expr::NOT(x) => {
+            let (t, c) = type_check(*x, env.clone());
+            let mut env2 = env.clone();
+            env2.push((t, Type::BOOL));
+            env2.extend(c);
+            (Type::BOOL, env2)
+        }
+        Expr::GEQ(x, y)
+        | Expr::LEQ(x, y)
+        | Expr::GT(x, y)
+        | Expr::LT(x, y)
+        | Expr::EQ(x, y)
+        | Expr::NEQ(x, y) => {
+            let (t1, c1) = type_check(*x, env.clone());
+            let (t2, c2) = type_check(*y, env.clone());
+            let mut env2 = env.clone();
+            env2.push((t1, Type::INT));
+            env2.push((t2, Type::INT));
+            env2.extend(c1);
+            env2.extend(c2);
+            (Type::BOOL, env2)
         }
 
         _ => (Type::UNIT, env),

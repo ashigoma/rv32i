@@ -9,7 +9,10 @@ use crate::enums::Expr;
 
 %right Semi;
 %right Let_  LetRec_ Fun_ If_;
-%left Plus Minus Or And Geq Leq Gt Lt Eq Neq;
+%left Geq Leq Gt Lt Eq Neq;
+%left Plus Minus;
+%left Or;
+%left And;
 %left Not;
 %left App_;
 %left Open Close;
@@ -80,6 +83,7 @@ Expr(Expr)
     | e1=Expr Gt e2=Expr {Expr::GT(Box::new(e1), Box::new(e2))}
     | e1=Expr Lt e2=Expr {Expr::LT(Box::new(e1), Box::new(e2))}
     | e1=Expr Eq e2=Expr {Expr::EQ(Box::new(e1), Box::new(e2))}
+    | e1=Expr Neq e2=Expr {Expr::NEQ(Box::new(e1), Box::new(e2))}
     | e1=Expr And e2=Expr {Expr::AND(Box::new(e1), Box::new(e2))}
     | e1=Expr Or e2=Expr {Expr::OR(Box::new(e1), Box::new(e2))}
     | Not e1=Expr {Expr::NOT(Box::new(e1))}
