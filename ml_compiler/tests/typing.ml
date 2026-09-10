@@ -1,1 +1,1 @@
-if x then y else z
+fun x -> x + 2
