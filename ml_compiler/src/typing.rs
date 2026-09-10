@@ -64,7 +64,12 @@ pub fn type_check(ast: Expr, env: Vec<(Type, Type)>) -> (Type, Vec<(Type, Type)>
             let mut env2 = env.clone();
             match *x {
                 Expr::ID(s) => env2.push((Type::ID(s), t1)),
-                _ => return (Type::ERROR("let x = e1 in e2 : x is not an identifier".to_string()), Vec::new())
+                _ => {
+                    return (
+                        Type::ERROR("let x = e1 in e2 : x is not an identifier".to_string()),
+                        Vec::new(),
+                    );
+                }
             };
             let (t2, c2) = type_check(*e2, env2.clone());
             let mut c = c1.clone();
@@ -86,10 +91,35 @@ pub fn type_check(ast: Expr, env: Vec<(Type, Type)>) -> (Type, Vec<(Type, Type)>
             let alpha = new_type_id();
             match *x {
                 Expr::ID(s) => env2.push((Type::ID(s), alpha.clone())),
-                _ => return (Type::ERROR("fun x -> e : x is not an identifier".to_string()), Vec::new())
+                _ => {
+                    return (
+                        Type::ERROR("fun x -> e : x is not an identifier".to_string()),
+                        Vec::new(),
+                    );
+                }
             };
             let (t, c) = type_check(*e, env2);
             (Type::FUN(Box::new(alpha), Box::new(t)), c)
+        }
+        Expr::APP(e1, e2) => {
+            let (t1, c1) = type_check(*e1, env.clone());
+            let (t2, c2) = type_check(*e2, env.clone());
+            let alpha = new_type_id();
+            let mut c = vec![(
+                t1.clone(),
+                Type::FUN(Box::new(t2.clone()), Box::new(alpha.clone())),
+            )];
+            c.extend(c1);
+            c.extend(c2);
+            (alpha, c)
+        }
+        Expr::SEMI(e1, e2) => {
+            let (t1, c1) = type_check(*e1, env.clone());
+            let (t2, c2) = type_check(*e2, env.clone());
+            let mut c = vec![(t1.clone(), Type::UNIT)];
+            c.extend(c1);
+            c.extend(c2);
+            (t2, c)
         }
 
         _ => (Type::ERROR("undefined expr".to_string()), Vec::new()),

@@ -1,1 +1,1 @@
-fun x -> x + 2
+let f = fun x -> () in f 3; 2+3
