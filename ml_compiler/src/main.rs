@@ -2,12 +2,13 @@ mod enums;
 mod lexer;
 mod grammer;
 mod parser;
+mod typing;
 
 use std::fs;
 use std::process;
 
 fn main() {
-    let code = match fs::read_to_string("tests/add.ml") {
+    let code = match fs::read_to_string("tests/arith.ml") {
         Ok(r) => r,
         Err(_) => {eprintln!("failed to open code"); process::exit(1)}
     };
@@ -27,4 +28,11 @@ fn main() {
     };
 
     println!("{:?}", ast);
+
+    let (ast_type, constr) = typing::type_check(ast, Vec::new());
+
+    println!("{:?}", ast_type);
+    println!("{:?}", constr);
+
+
 }

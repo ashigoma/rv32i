@@ -119,3 +119,14 @@ pub enum Expr {
   SEMI(Box<Expr>, Box<Expr>),
   APP(Box<Expr>, Box<Expr>),
 }
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum Type {
+    INT,
+    BOOL,
+    STRING,
+    UNIT,
+    FUN(Box<Type>, Box<Type>),
+    ID(String), 
+    TYPEID(i32)
+}
