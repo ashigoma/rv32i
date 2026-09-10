@@ -1,7 +1,6 @@
-
 // ================================User Codes Begin================================
-use crate::enums::Token;
 use crate::enums::Expr;
+use crate::enums::Token;
 
 // =================================User Codes End=================================
 /*
@@ -38,21 +37,11 @@ use crate::enums::Expr;
 */
 // =============================Generated Codes Begin==============================
 #[allow(non_camel_case_types, dead_code)]
-pub type ExprContext = ::rusty_lr::parser::deterministic::Context<
-    Parser,
-    Data,
-    ExprExtracter,
-    u8,
->;
+pub type ExprContext = ::rusty_lr::parser::deterministic::Context<Parser, Data, ExprExtracter, u8>;
 #[allow(non_camel_case_types, dead_code)]
 pub type Rule = ::rusty_lr::production::Production<TerminalClasses, NonTerminals>;
 #[allow(non_camel_case_types, dead_code)]
-pub type Tables = ::rusty_lr::parser::table::DenseFlatTables<
-    TerminalClasses,
-    NonTerminals,
-    u8,
-    u8,
->;
+pub type Tables = ::rusty_lr::parser::table::DenseFlatTables<TerminalClasses, NonTerminals, u8, u8>;
 #[allow(non_camel_case_types, dead_code)]
 pub type ParseError = ::rusty_lr::parser::deterministic::ParseError<
     Token,
@@ -69,7 +58,7 @@ pub type ParseError = ::rusty_lr::parser::deterministic::ParseError<
     std::cmp::PartialEq,
     std::cmp::Eq,
     std::cmp::PartialOrd,
-    std::cmp::Ord
+    std::cmp::Ord,
 )]
 #[repr(usize)]
 pub enum TerminalClasses {
@@ -109,7 +98,9 @@ impl TerminalClasses {
     #[inline]
     pub fn from_usize(value: usize) -> Self {
         debug_assert!(
-            value < 31usize, "Terminal class index {} is out of bounds (max {})", value,
+            value < 31usize,
+            "Terminal class index {} is out of bounds (max {})",
+            value,
             31usize
         );
         unsafe { ::std::mem::transmute(value) }
@@ -218,7 +209,7 @@ impl std::fmt::Debug for TerminalClasses {
     std::cmp::PartialEq,
     std::cmp::Eq,
     std::cmp::PartialOrd,
-    std::cmp::Ord
+    std::cmp::Ord,
 )]
 #[repr(usize)]
 pub enum NonTerminals {
@@ -230,7 +221,9 @@ impl NonTerminals {
     #[inline]
     pub fn from_usize(value: usize) -> Self {
         debug_assert!(
-            value < 3usize, "Non-terminal index {} is out of bounds (max {})", value,
+            value < 3usize,
+            "Non-terminal index {} is out of bounds (max {})",
+            value,
             3usize
         );
         unsafe { ::std::mem::transmute(value) }
@@ -1565,7 +1558,13 @@ impl ::rusty_lr::parser::semantic_value::SemanticValue for Data {
 ///
 /// Since this struct only holds `'static` references to shared, read-only static parser tables,
 /// it is extremely cheap to instantiate, copy, or clone, and takes very little space.
-#[allow(unused_braces, unused_parens, unused_variables, non_snake_case, unused_mut)]
+#[allow(
+    unused_braces,
+    unused_parens,
+    unused_variables,
+    non_snake_case,
+    unused_mut
+)]
 #[derive(Clone, Copy)]
 pub struct Parser;
 unsafe impl ::std::marker::Send for Parser {}
@@ -2128,4 +2127,3 @@ impl ::rusty_lr::parser::Parser for Parser {
 }
 
 // ==============================Generated Codes End===============================
-        

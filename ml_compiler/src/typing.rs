@@ -9,14 +9,14 @@ pub fn type_check(ast: Expr, env: Vec<(Type, Type)>) -> (Type, Vec<(Type, Type)>
         Expr::BOOL(_) => (Type::BOOL, env),
         Expr::UNIT => (Type::UNIT, env),
         Expr::ID(x) => match lookup_env(&env, Type::ID(x.clone())) {
-                Some(t) => (t, env),
-                None => {
-                    let alpha = new_type_id();
-                    let mut env2 = env.clone();
-                    env2.push((Type::ID(x.clone()), alpha.clone()));
-                    (alpha.clone(), env2)
-                }
-            },
+            Some(t) => (t, env),
+            None => {
+                let alpha = new_type_id();
+                let mut env2 = env.clone();
+                env2.push((Type::ID(x.clone()), alpha.clone()));
+                (alpha.clone(), env2)
+            }
+        },
         Expr::ADD(x, y) => {
             let (t1, c1) = type_check(*x, env.clone());
             let (t2, c2) = type_check(*y, env.clone());
@@ -28,7 +28,7 @@ pub fn type_check(ast: Expr, env: Vec<(Type, Type)>) -> (Type, Vec<(Type, Type)>
             (Type::INT, env2)
         }
 
-        _ => (Type::UNIT, env)
+        _ => (Type::UNIT, env),
     }
 }
 
@@ -36,7 +36,7 @@ fn lookup_env(env: &Vec<(Type, Type)>, t: Type) -> Option<Type> {
     for e in env {
         match e {
             (t1, t2) if t == *t1 => return Some(t2.clone()),
-            _ => continue
+            _ => continue,
         }
     }
     None

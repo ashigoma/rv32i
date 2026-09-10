@@ -34,6 +34,6 @@ pub fn parse(tokens: Vec<Token>) -> Result<enums::Expr, String> {
 
     match context.accept() {
         Ok((ast, _)) => Ok(ast),
-        Err(err) => Err(err.to_string())
+        Err(err) => Err(err.to_string()),
     }
 }

@@ -8,7 +8,7 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, String> {
     while let Some(token) = lexer.next() {
         match token {
             Ok(t) => tokens.push(t),
-            Err(_) => return Err(format!("invalid token: {:?}", lexer.slice()))
+            Err(_) => return Err(format!("invalid token: {:?}", lexer.slice())),
         }
     }
 

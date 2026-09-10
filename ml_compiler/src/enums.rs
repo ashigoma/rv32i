@@ -1,5 +1,5 @@
-use std::fmt;
 use logos::Logos;
+use std::fmt;
 
 #[derive(Logos, Debug, Clone, PartialEq)]
 #[logos(skip r"[ \t\n\f]+")]
@@ -66,7 +66,7 @@ pub enum Token {
 
     #[token("(")]
     OPEN,
-    
+
     #[token(")")]
     CLOSE,
 
@@ -78,7 +78,7 @@ pub enum Token {
             s[1..s.len() - 1].to_string()
         })]
     STRING(String),
-    
+
     #[regex("[0-9]+", |lex| lex.slice().parse::<i32>().ok())]
     INT(i32),
 
@@ -97,27 +97,27 @@ impl fmt::Display for Token {
 
 #[derive(Debug)]
 pub enum Expr {
-  INT(i32),
-  BOOL(bool),
-  STRING(String),
-  UNIT,
-  ID(String),
-  ADD(Box<Expr>, Box<Expr>),
-  SUB(Box<Expr>, Box<Expr>),
-  GEQ(Box<Expr>, Box<Expr>),
-  LEQ(Box<Expr>, Box<Expr>),
-  GT(Box<Expr>, Box<Expr>),
-  LT(Box<Expr>, Box<Expr>),
-  EQ(Box<Expr>, Box<Expr>),
-  AND(Box<Expr>, Box<Expr>),
-  OR(Box<Expr>, Box<Expr>),
-  NOT(Box<Expr>),
-  LET(Box<Expr>, Box<Expr>, Box<Expr>),
-  LETREC(Box<Expr>, Box<Expr>, Box<Expr>),
-  FUN(Box<Expr>, Box<Expr>),
-  IF(Box<Expr>, Box<Expr>, Box<Expr>),
-  SEMI(Box<Expr>, Box<Expr>),
-  APP(Box<Expr>, Box<Expr>),
+    INT(i32),
+    BOOL(bool),
+    STRING(String),
+    UNIT,
+    ID(String),
+    ADD(Box<Expr>, Box<Expr>),
+    SUB(Box<Expr>, Box<Expr>),
+    GEQ(Box<Expr>, Box<Expr>),
+    LEQ(Box<Expr>, Box<Expr>),
+    GT(Box<Expr>, Box<Expr>),
+    LT(Box<Expr>, Box<Expr>),
+    EQ(Box<Expr>, Box<Expr>),
+    AND(Box<Expr>, Box<Expr>),
+    OR(Box<Expr>, Box<Expr>),
+    NOT(Box<Expr>),
+    LET(Box<Expr>, Box<Expr>, Box<Expr>),
+    LETREC(Box<Expr>, Box<Expr>, Box<Expr>),
+    FUN(Box<Expr>, Box<Expr>),
+    IF(Box<Expr>, Box<Expr>, Box<Expr>),
+    SEMI(Box<Expr>, Box<Expr>),
+    APP(Box<Expr>, Box<Expr>),
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -127,6 +127,6 @@ pub enum Type {
     STRING,
     UNIT,
     FUN(Box<Type>, Box<Type>),
-    ID(String), 
-    TYPEID(i32)
+    ID(String),
+    TYPEID(i32),
 }
