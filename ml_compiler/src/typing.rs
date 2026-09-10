@@ -121,6 +121,25 @@ pub fn type_check(ast: Expr, env: Vec<(Type, Type)>) -> (Type, Vec<(Type, Type)>
             c.extend(c2);
             (t2, c)
         }
+        Expr::LETREC(f, e1, e2) => {
+            let mut env2 = env.clone();
+            let alpha = new_type_id();
+            match *f {
+                Expr::ID(s) => env2.push((Type::ID(s), alpha.clone())),
+                _ => {
+                    return (
+                        Type::ERROR("let rec f = e1 in e2 : f is not an identifier".to_string()),
+                        Vec::new(),
+                    );
+                }
+            };
+            let (t1, c1) = type_check(*e1, env2.clone());
+            let (t2, c2) = type_check(*e2, env2.clone());
+            let mut c = vec![(alpha.clone(), t2.clone())];
+            c.extend(c1);
+            c.extend(c2);
+            (t2, c)
+        }
 
         _ => (Type::ERROR("undefined expr".to_string()), Vec::new()),
     }
