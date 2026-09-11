@@ -33,9 +33,7 @@ fn ast_block_to_ir(ast: Expr, var: String) -> (Vec<IRExpr>, IRCode) {
             code.push(IRExpr::ADD(var, xa.clone(), xb.clone()));
         }
 
-        _ => {
-
-        }
+        _ => {}
     }
 
     (code, func_code)
@@ -49,7 +47,6 @@ fn new_tmp_var() -> String {
     let id = TMP_VAR_COUNTER.with(|c| c.replace(c.get() + 1) + 1);
     format!("_x{id}")
 }
-
 
 fn print_ir_expr(ir_expr: IRExpr) {
     match ir_expr {
