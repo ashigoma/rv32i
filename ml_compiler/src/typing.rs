@@ -201,9 +201,18 @@ fn unify(t: Type, mut constr: Vec<(Type, Type)>) -> (Type, Vec<(Type, Type)>) {
 
 pub fn get_type_and_unified_constr(ast: Expr) -> (Type, HashMap<String, Type>) {
     let constr_init = vec![
-        (Type::ID("print_string".to_string()), Type::FUN(Box::new(Type::STRING), Box::new(Type::UNIT))),
-        (Type::ID("print_int".to_string()), Type::FUN(Box::new(Type::INT), Box::new(Type::UNIT))),
-        (Type::ID("print_bool".to_string()), Type::FUN(Box::new(Type::BOOL), Box::new(Type::UNIT))),
+        (
+            Type::ID("print_string".to_string()),
+            Type::FUN(Box::new(Type::STRING), Box::new(Type::UNIT)),
+        ),
+        (
+            Type::ID("print_int".to_string()),
+            Type::FUN(Box::new(Type::INT), Box::new(Type::UNIT)),
+        ),
+        (
+            Type::ID("print_bool".to_string()),
+            Type::FUN(Box::new(Type::BOOL), Box::new(Type::UNIT)),
+        ),
     ];
     let (ast_type, constr) = get_type_and_constr(ast, constr_init);
     let (ast_type_unified, constr_unified) = unify(ast_type.clone(), constr.clone());
