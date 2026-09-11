@@ -132,3 +132,15 @@ pub enum Type {
     TYPEID(i32),
     ERROR,
 }
+
+pub enum IRExpr {
+    LABEL(String),
+    JUMP(String),
+    BRANCH(String, String),
+    LOADINT(String, i32),
+    LOADBOOL(String, bool),
+    LOADSTR(String, String),
+    LOADFUNC(String, String),
+    ADD(String, String, String),
+    RETURN(String),
+}

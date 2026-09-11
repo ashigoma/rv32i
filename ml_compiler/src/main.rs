@@ -1,5 +1,6 @@
 mod enums;
 mod grammer;
+mod ir;
 mod lexer;
 mod parser;
 mod typing;
@@ -38,7 +39,10 @@ fn main() {
 
     println!("{:?}", ast);
 
-    let (ast_type, constr) = typing::get_type_and_unified_constr(ast);
+    let (ast_type, constr) = typing::get_type_and_unified_constr(ast.clone());
     println!("{:?}", ast_type);
     println!("{:?}", constr);
+
+    let ir_code = ir::ast_to_ir(ast);
+    ir::print_ir(ir_code);
 }
