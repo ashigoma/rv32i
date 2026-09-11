@@ -90,14 +90,18 @@ fn get_type_and_constr(ast: Expr, env: Vec<(Type, Type)>) -> (Type, Vec<(Type, T
         }
         Expr::FUN(x, e) => {
             let mut env2 = env.clone();
-            let (t2, c2) = get_type_and_constr(*e, env.clone());
-            env2.extend(c2.clone());
-            let (t1, c1) = get_type_and_constr(*x, env2.clone());
+            let alpha = new_type_id();
+            match *x {
+                Expr::ID(s) => env2.push((Type::ID(s), alpha.clone())),
+                _ => {
+                    println!("fun x -> e: x is not an identifier");
+                    return (Type::ERROR, Vec::new());
+                }
+            };
 
-            let mut c = env.clone();
-            c.extend(c1.clone());
-            c.extend(c2.clone());
-            (Type::FUN(Box::new(t1), Box::new(t2)), c)
+            let (t, c) = get_type_and_constr(*e, env2.clone());
+
+            (Type::FUN(Box::new(alpha), Box::new(t)), c)
         }
         Expr::APP(e1, e2) => {
             let (t1, c1) = get_type_and_constr(*e1, env.clone());
