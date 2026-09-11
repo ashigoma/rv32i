@@ -1,1 +1,1 @@
-let f = fun x -> fun y -> x + y in f 2 3
+let f = fun x -> fun y -> x + y in f 1 2

@@ -146,7 +146,7 @@ fn get_type_and_constr(ast: Expr, env: Vec<(Type, Type)>) -> (Type, Vec<(Type, T
     println!("out: {:?}", r);
 
     let (t, c) = r;
-    unify(t, c)
+    (t, c)
 }
 
 fn lookup_env(env: &Vec<(Type, Type)>, t: Type) -> Option<Type> {
@@ -182,12 +182,12 @@ fn unify(t: Type, mut constr: Vec<(Type, Type)>) -> (Type, Vec<(Type, Type)>) {
                 c2.extend(constr);
                 unify(t, c2)
             }
-            (Type::TYPEID(x), t) | (t, Type::TYPEID(x)) if !matches!(t, Type::ID(_)) => {
-                let u = subst(constr, Type::TYPEID(x), t.clone());
+            (Type::TYPEID(x), t1) | (t1, Type::TYPEID(x)) if !matches!(t1, Type::ID(_)) => {
+                let u = subst(constr, Type::TYPEID(x), t1.clone());
                 let (t2, c2) = unify(t.clone(), u.clone());
                 (
-                    subst_once(t2, Type::TYPEID(x), t.clone()),
-                    subst(c2, Type::TYPEID(x), t.clone()),
+                    subst_once(t2, Type::TYPEID(x), t1.clone()),
+                    subst(c2, Type::TYPEID(x), t1.clone()),
                 )
             }
             _ => {
@@ -225,16 +225,19 @@ fn unify(t: Type, mut constr: Vec<(Type, Type)>) -> (Type, Vec<(Type, Type)>) {
 
 pub fn get_type_and_unified_constr(ast: Expr) -> (Type, HashMap<String, Type>) {
     let (ast_type, constr) = get_type_and_constr(ast, Vec::new());
+    let (ast_type_unified, constr_unified) = unify(ast_type.clone(), constr.clone());
+    // println!("(ast_type, constr) = {:?}", (ast_type.clone(), constr.clone()));
+    // println!("(ast_type_unified, constr_unified) = {:?}", (ast_type_unified.clone(), constr_unified.clone()));
 
     let mut u: Vec<(String, Type)> = Vec::new();
 
-    for (x, y) in constr {
+    for (x, y) in constr_unified {
         if let Type::ID(s) = x {
             u.push((s, y));
         }
     }
 
-    (ast_type, u.into_iter().collect())
+    (ast_type_unified, u.into_iter().collect())
 }
 
 // tのt1をt2に
@@ -248,13 +251,7 @@ fn subst_once(t: Type, t1: Type, t2: Type) -> Type {
             Box::new(subst_once(*x, t1.clone(), t2.clone())),
             Box::new(subst_once(*y, t1.clone(), t2.clone())),
         ),
-        Type::ID(_) => {
-            if t == t1 {
-                t2
-            } else {
-                t
-            }
-        }
+        Type::ID(s) => Type::ID(s),
         Type::TYPEID(_) => {
             if t == t1 {
                 t2
