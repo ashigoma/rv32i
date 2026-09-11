@@ -4,8 +4,7 @@ use std::cell::Cell;
 use std::collections::HashMap;
 
 fn get_type_and_constr(ast: Expr, env: Vec<(Type, Type)>) -> (Type, Vec<(Type, Type)>) {
-    let (ast_, env_) = (ast.clone(), env.clone());
-    println!("in1: {:?}", (ast_.clone(), env_.clone()));
+    // let (ast_, env_) = (ast.clone(), env.clone());
     let r = match ast {
         Expr::INT(_) => (Type::INT, env),
         Expr::STRING(_) => (Type::STRING, env),
@@ -142,8 +141,8 @@ fn get_type_and_constr(ast: Expr, env: Vec<(Type, Type)>) -> (Type, Vec<(Type, T
             (t2, c)
         }
     };
-    println!("in: {:?}", (ast_, env_));
-    println!("out: {:?}", r);
+    // println!("in: {:?}", (ast_, env_));
+    // println!("out: {:?}", r);
 
     let (t, c) = r;
     (t, c)
@@ -200,31 +199,13 @@ fn unify(t: Type, mut constr: Vec<(Type, Type)>) -> (Type, Vec<(Type, Type)>) {
     }
 }
 
-// pub fn get_type_and_unified_constr(ast: Expr) -> (Type, HashMap<String, Type>) {
-//     let ast_main = Expr::LET(Box::new(Expr::ID("_main".to_string())), Box::new(ast), Box::new(Expr::ID("_main".to_string())));
-
-//     let (_, constr) = get_type_and_constr(ast_main, Vec::new());
-
-//     println!("constr: {:?}", constr);
-
-//     let mut u: Vec<(String, Type)> = Vec::new();
-//     let mut ast_type = Type::ERROR;
-
-//     for (x, y) in unify(constr) {
-//         if let Type::ID(s) = x {
-//             if s == "_main" {
-//                 ast_type = y;
-//             } else {
-//                 u.push((s, y));
-//             }
-//         }
-//     }
-
-//     (ast_type, u.into_iter().collect())
-// }
-
 pub fn get_type_and_unified_constr(ast: Expr) -> (Type, HashMap<String, Type>) {
-    let (ast_type, constr) = get_type_and_constr(ast, Vec::new());
+    let constr_init = vec![
+        (Type::ID("print_string".to_string()), Type::FUN(Box::new(Type::STRING), Box::new(Type::UNIT))),
+        (Type::ID("print_int".to_string()), Type::FUN(Box::new(Type::INT), Box::new(Type::UNIT))),
+        (Type::ID("print_bool".to_string()), Type::FUN(Box::new(Type::BOOL), Box::new(Type::UNIT))),
+    ];
+    let (ast_type, constr) = get_type_and_constr(ast, constr_init);
     let (ast_type_unified, constr_unified) = unify(ast_type.clone(), constr.clone());
     // println!("(ast_type, constr) = {:?}", (ast_type.clone(), constr.clone()));
     // println!("(ast_type_unified, constr_unified) = {:?}", (ast_type_unified.clone(), constr_unified.clone()));
@@ -265,16 +246,13 @@ fn subst_once(t: Type, t1: Type, t2: Type) -> Type {
 
 // cのt1をt2に
 fn subst(c: Vec<(Type, Type)>, t1: Type, t2: Type) -> Vec<(Type, Type)> {
-    // println!("[subst] {:?} -> {:?}", t1, t2);
     let mut r = c.clone();
     for i in 0..r.len() {
         let (x, y) = &r[i];
-        // println!("before subst: {:?}", (x, y));
         r[i] = (
             subst_once(x.clone(), t1.clone(), t2.clone()),
             subst_once(y.clone(), t1.clone(), t2.clone()),
         );
-        // println!("after subst: {:?}", r[i]);
     }
     r
 }

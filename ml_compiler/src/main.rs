@@ -8,7 +8,7 @@ use std::fs;
 use std::process;
 
 fn main() {
-    let code = match fs::read_to_string("tests/add.ml") {
+    let code = match fs::read_to_string("tests/fizzbuzz.ml") {
         Ok(r) => r,
         Err(_) => {
             eprintln!("failed to open code");
@@ -38,6 +38,7 @@ fn main() {
 
     println!("{:?}", ast);
 
-    let mut constr_unified = typing::get_type_and_unified_constr(ast);
-    println!("constr_unified: {:?}", constr_unified);
+    let (ast_type, constr) = typing::get_type_and_unified_constr(ast);
+    println!("{:?}", ast_type);
+    println!("{:?}", constr);
 }

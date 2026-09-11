@@ -1,1 +1,1 @@
-let f = fun a -> fun b -> fun c -> 2 in f (2 + 3) 4 "Hello"
+let f = fun a -> fun b -> fun c -> (print_string c; a+b) in f 1 2 "hi"
