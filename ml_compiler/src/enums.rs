@@ -95,7 +95,7 @@ impl fmt::Display for Token {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expr {
     INT(i32),
     BOOL(bool),
@@ -130,5 +130,5 @@ pub enum Type {
     FUN(Box<Type>, Box<Type>),
     ID(String),
     TYPEID(i32),
-    ERROR(String),
+    ERROR,
 }

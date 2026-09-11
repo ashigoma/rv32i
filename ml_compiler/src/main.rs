@@ -38,8 +38,6 @@ fn main() {
 
     println!("{:?}", ast);
 
-    let (ast_type, constr) = typing::type_check(ast, Vec::new());
-
-    println!("{:?}", ast_type);
-    println!("{:?}", constr);
+    let mut constr_unified = typing::get_type_and_unified_constr(ast);
+    println!("constr_unified: {:?}", constr_unified);
 }
