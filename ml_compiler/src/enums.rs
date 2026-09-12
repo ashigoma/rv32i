@@ -134,15 +134,26 @@ pub enum Type {
 }
 
 pub enum IRExpr {
+    ADD(String, String, String),
+    SUB(String, String, String),
+    GEQ(String, String, String),
+    LEQ(String, String, String),
+    GT(String, String, String),
+    LT(String, String, String),
+    EQ(String, String, String),
+    NEQ(String, String, String),
+    AND(String, String, String),
+    OR(String, String, String),
+    NOT(String, String),
     LABEL(String),
     JUMP(String),
     BRANCH(String, String),
     LOAD(String, String),
+    LOADUNIT(String),
     LOADINT(String, i32),
     LOADBOOL(String, bool),
     LOADSTR(String, String),
     LOADFUNC(String, String),
-    ADD(String, String, String),
     RETURN(String),
     APP(String, String, String),
 }
