@@ -2,6 +2,12 @@ use crate::enums::IRExpr;
 use crate::enums::VarTree;
 use crate::ir::FuncCode;
 use crate::ir::IRCode;
+use std::collections::HashMap;
+
+type LocalVarMapping = Vec<(String, i32)>;
+type FreeVarMapping = HashMap<String, (i32, String)>;
+type VarMapEntry = (LocalVarMapping, FreeVarMapping);
+type VarMap = HashMap<String, VarMapEntry>;
 
 pub fn ir_func_code_to_vartree(code: IRCode, label: String) -> Result<VarTree, String> {
     let Some((_, v, func_code)) = ir_lookup_fn(code.clone(), label.clone()) else {
@@ -66,4 +72,57 @@ fn ir_lookup_fn(code: IRCode, label: String) -> Option<FuncCode> {
         }
     }
     return None;
+}
+
+
+fn write_to_map(map: &mut VarMap, func: &VarTree, scope: Vec<(String, i32, String)>) {
+    // println!("map:{:?}\nfunc:{:?}\nscope:{:?}", map, func, scope);
+    let mut map_local = LocalVarMapping::new();
+    let mut map_free = FreeVarMapping::new();
+    let mut scope_ = scope.clone();
+
+    if let VarTree::FUNC(func_name, children, freevals) = func {
+        // 束縛変数
+        let mut i = 0;
+        for c in children.iter() {
+            if let VarTree::VAR(s) = c {
+                map_local.push((s.to_string(), i));
+                scope_.push((s.to_string(),0,func_name.to_string()));
+                i += 1;
+            } else if let VarTree::FUNC(_,_,_) = c {
+                let mut scope_2 = scope_.clone();
+                for j in 0..scope_2.len() {
+                    let (v, n, f) = &scope_2[j];
+                    scope_2[j] = (v.to_string(), n+1, f.to_string());
+                }
+                write_to_map(map, &c, scope_2);
+            }
+        }
+
+        // 自由変数
+        for s in freevals {
+            let mut found = false;
+            for (v, n, f) in scope.iter().rev() {
+                if v == s {
+                    map_free.insert(v.to_string(), (*n, f.to_string()));
+                    found = true;
+                    break;
+                }
+            }
+            if !found {
+                println!("write_to_map: undefined variable: {}", s);
+            }
+        }
+
+        let entry: VarMapEntry = (map_local, map_free);
+        map.insert(func_name.to_string(), entry);
+    } else {
+        println!("write_to_map: not a function: {:?}", func);
+    }
+}
+
+pub fn vartree_to_varmap(tree: VarTree) -> VarMap {
+    let mut map = VarMap::new();
+    write_to_map(&mut map, &tree, Vec::new());
+    map
 }

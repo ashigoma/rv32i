@@ -1,11 +1,12 @@
 # 構文
-1引数まで、recあり、tupleなし、パターンマッチなし、文字列操作なし
-多相関数なし
+1引数まで、recあり
+tupleなし、パターンマッチなし、文字列操作なし、リストなし
+相互再帰なし、多相関数なし
 ```
-(int)
-(bool)
-(string)
-(unit)
+42
+true
+"hi"
+()
 x
 
 (e)
@@ -15,63 +16,61 @@ e1 [< <= > >= == !=] e2
 e1 [| &] e2
 !e1
 if e1 then e2 else e3
-
-let x = e1 in e2
-
-fun x -> e
-
-x e
-let rec x = e1 in e2
 e1; e2
 
+fun x -> e
+x e
+
+let x = e1 in e2
+let rec x = e1 in e2
+
+print_string s
+print_int n
+print_bool b
 ```
 
-# 中間言語、アセンブリ
-使用されるスコープの外で定義されるような変数である自由変数、その参照関係をあらかじめ列挙しておく。
-自由変数は実体化時にlambda closure構造体にキャプチャされ、ヒープに置かれる。GCなし。
-lambda closure構造体は、実体化した側のスタックフレームへのポインタ、call先のアドレス、自由変数を保持する。
-自由変数以外の変数はすべてスタックフレームに置かれる。
-関数の呼び出し時は、引数をレジスタ渡し、lambda closure構造体へのポインタをスタック渡し。
+# 型検査
+多相型、primitive型の不一致、自己言及をコンパイルエラーにする
 
-```ocaml
-let y = 2 in
-let f = fun x -> x + y in
-f 3
-```
-
-```
-_main _dummy:
-    y = 2
-    f = &_f1
-    _x2 = app f 3
-    _x2
-
-_f1 x y:
-    _x1 = add x y
-    _x1
-```
-
-```ocaml
-let fib = fun n -> if n <= 1 then 1 else fib (n-2) + fib (n-1) in fib 10
-```
-
+# 中間言語
 ```
 _main _dummy:
-    fib = &_f1
-    _x7 = app fib 10
-    _x7
-
-_f1 n fib:
-    _x1 = leq n 1
-    b _x1 _l1
-    _x3 = sub n 2
-    _x4 = app fib _x3
-    _x5 = sub n 1
-    _x6 = app fib _x5
-    _x2 = add _x4 _x6
-    j _l2
-_l1:
-    _x2 = 1
-_l2:
-    _x2
+        f = &_f1
+        g = &_f2
+        _x7 = 1
+        _res = g _x7
+        ret _res
+_f1 x:
+        _x2 = x
+        _x3 = 2
+        _x1 = _x2 + _x3
+        ret _x1
+_f2 y:
+        _x6 = y
+        _x5 = f _x6
+        _x4 = f _x5
+        ret _x4
 ```
+
+# 変数解析
+関数の外で定義された後関数内で使われるような変数が自由変数、そうでない変数は束縛変数。
+各関数に対して、以下を静的に決定する。
+- 自由変数→束縛変数の参照関係(何回static linkをたどるべきか)
+    - 同名の自由変数が複数あれば直近の定義を採用
+    - 未定義の自由変数があればコンパイルエラーにする
+- 束縛変数→スタックフレーム内での束縛変数のindex
+
+# アセンブリ
+- 引数のレジスタ渡しはしない
+- stack frameの構造
+    - calleeに対応する lambda closureへのポインタ
+    - 束縛変数(引数はこれの0番目とみなす)
+- heap
+    - lambda closure
+    - 文字列
+- lambda closureの構造
+    - 関数の開始アドレス
+    - 自身が作られたときのspの値
+    - キャプチャした自由変数たちの値
+
+GCはたぶん実装しない

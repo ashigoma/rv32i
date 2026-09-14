@@ -47,6 +47,15 @@ fn main() {
     let ir_code = ir::ast_to_ir(ast);
     ir::print_ir(ir_code.clone());
 
-    let var_tree = vars::ir_func_code_to_vartree(ir_code, "_main".to_string());
+    let var_tree = match vars::ir_func_code_to_vartree(ir_code, "_main".to_string()) {
+        Ok(r) => r,
+        Err(e) => {
+            eprintln!("failed to construct vartree: {}", e);
+            process::exit(1)
+        }
+    };
     println!("{:?}", var_tree);
+
+    let var_map = vars::vartree_to_varmap(var_tree);
+    println!("{:?}", var_map);
 }
