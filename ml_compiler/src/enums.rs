@@ -162,5 +162,5 @@ pub enum IRExpr {
 #[derive(Debug, Clone, PartialEq)]
 pub enum VarTree {
     VAR(String),
-    FUNC(String, Box<Vec<VarTree>>),
+    FUNC(String, Box<Vec<VarTree>>, Vec<String>),
 }

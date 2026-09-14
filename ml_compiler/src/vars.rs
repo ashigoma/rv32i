@@ -56,7 +56,7 @@ pub fn ir_func_code_to_vartree(code: IRCode, label: String) -> Result<VarTree, S
         }
     }
 
-    return Ok(VarTree::FUNC(label, Box::new(children)));
+    return Ok(VarTree::FUNC(label, Box::new(children), var_free));
 }
 
 fn ir_lookup_fn(code: IRCode, label: String) -> Option<FuncCode> {
