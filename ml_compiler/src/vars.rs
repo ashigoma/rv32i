@@ -22,7 +22,7 @@ pub fn ir_func_code_to_vartree(code: IRCode, label: String) -> Result<VarTree, S
     var_defined.push(v.clone());
     children.push(VarTree::VAR(v));
 
-    for c in func_code {
+    for c in func_code.clone() {
         let mut var_defined_new = Vec::new();
         let mut var_free_new = Vec::new();
         match c {
@@ -55,7 +55,8 @@ pub fn ir_func_code_to_vartree(code: IRCode, label: String) -> Result<VarTree, S
                 var_free_new.push(x);
             }
             IRExpr::LOADFUNC(label, f) => {
-                var_defined_new.push(label);
+                children.push(VarTree::VAR(label.clone()));
+                var_defined_new.push(label.clone());
                 let subfunc_res = ir_func_code_to_vartree(code.clone(), f);
                 if let Ok(tree) = subfunc_res {
                     children.push(tree)
@@ -75,10 +76,12 @@ pub fn ir_func_code_to_vartree(code: IRCode, label: String) -> Result<VarTree, S
         var_defined_new.dedup();
         var_defined.extend(var_defined_new.clone());
         for v in var_defined_new {
-            children.push(VarTree::VAR(v));
+            children.push(VarTree::VAR(v.to_string()));
         }
+        // println!("free: {:?} defined: {:?}", var_free.clone(), var_defined.clone());
     }
 
+    // println!("{:?}: {:?} -> {:?}", label, &func_code, var_free);
     return Ok(VarTree::FUNC(label, Box::new(children), var_free));
 }
 
@@ -92,7 +95,6 @@ fn ir_lookup_fn(code: IRCode, label: String) -> Option<FuncCode> {
 }
 
 fn write_to_map(map: &mut VarMap, func: &VarTree, scope: Vec<(String, i32, String)>) {
-    // println!("map:{:?}\nfunc:{:?}\nscope:{:?}", map, func, scope);
     let mut map_local = LocalVarMapping::new();
     let mut map_free = FreeVarMapping::new();
     let mut scope_ = scope.clone();
@@ -116,6 +118,9 @@ fn write_to_map(map: &mut VarMap, func: &VarTree, scope: Vec<(String, i32, Strin
         }
 
         // 自由変数
+        // println!("map:{:?}\nfunc:{:?}\nscope:{:?}", map, func, scope);
+        // println!("freevals: {:?}", freevals);
+        // println!("scope: {:?}", scope);
         for s in freevals {
             let mut found = false;
             for (v, n, f) in scope.iter().rev() {

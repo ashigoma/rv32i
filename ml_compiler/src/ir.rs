@@ -18,6 +18,7 @@ fn ast_block_to_ir(ast: Expr, var: String) -> (Vec<IRExpr>, IRCode) {
     let mut code = Vec::<IRExpr>::new();
     let mut func_code = IRCode::new();
 
+    println!("{:?}", ast.clone());
     match ast {
         Expr::INT(n) => {
             code.push(IRExpr::LOADINT(var, n));
@@ -27,6 +28,9 @@ fn ast_block_to_ir(ast: Expr, var: String) -> (Vec<IRExpr>, IRCode) {
         }
         Expr::UNIT => {
             code.push(IRExpr::LOADUNIT(var));
+        }
+        Expr::STRING(s) => {
+            code.push(IRExpr::LOADSTR(var, s));
         }
         Expr::ID(s) => {
             code.push(IRExpr::LOAD(var, s));
@@ -207,8 +211,6 @@ fn ast_block_to_ir(ast: Expr, var: String) -> (Vec<IRExpr>, IRCode) {
             code.extend(c2);
             code.push(IRExpr::LABEL(l2));
         }
-
-        _ => {}
     }
 
     (code, func_code)
