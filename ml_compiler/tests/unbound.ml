@@ -1,0 +1,1 @@
+let f = fun y -> y + x in let g = fun z -> let x = 2 in f z in let h = fun z -> let x = 3 in f z in g 2; h 2

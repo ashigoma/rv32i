@@ -4,12 +4,13 @@ mod ir;
 mod lexer;
 mod parser;
 mod typing;
+mod vars;
 
 use std::fs;
 use std::process;
 
 fn main() {
-    let code = match fs::read_to_string("tests/hoge.ml") {
+    let code = match fs::read_to_string("tests/fib.ml") {
         Ok(r) => r,
         Err(_) => {
             eprintln!("failed to open code");
@@ -44,5 +45,8 @@ fn main() {
     println!("{:?}", constr);
 
     let ir_code = ir::ast_to_ir(ast);
-    ir::print_ir(ir_code);
+    ir::print_ir(ir_code.clone());
+
+    let var_tree = vars::ir_func_code_to_vartree(ir_code, "_main".to_string());
+    println!("{:?}", var_tree);
 }

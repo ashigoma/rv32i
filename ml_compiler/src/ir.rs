@@ -2,14 +2,15 @@ use crate::enums::Expr;
 use crate::enums::IRExpr;
 use std::cell::Cell;
 
-type IRCode = Vec<(String, Vec<String>, Vec<IRExpr>)>;
+pub type FuncCode = (String, String, Vec<IRExpr>);
+pub type IRCode = Vec<FuncCode>;
 
 pub fn ast_to_ir(ast: Expr) -> IRCode {
     let mut r = IRCode::new();
-    let (mut main_code, fn_code) = ast_block_to_ir(ast, "_res".to_string());
+    let (mut main_code, func_code) = ast_block_to_ir(ast, "_res".to_string());
     main_code.push(IRExpr::RETURN("_res".to_string()));
-    r.push(("_main".to_string(), vec!["_dummy".to_string()], main_code));
-    r.extend(fn_code);
+    r.push(("_main".to_string(), "_dummy".to_string(), main_code));
+    r.extend(func_code);
     r
 }
 
@@ -166,7 +167,8 @@ fn ast_block_to_ir(ast: Expr, var: String) -> (Vec<IRExpr>, IRCode) {
             f_code.extend(c1);
             f_code.push(IRExpr::RETURN(x1));
 
-            func_code.push((f.clone(), vec![s], f_code));
+            func_code.push((f.clone(), s, f_code));
+            func_code.extend(f1);
 
             code.push(IRExpr::LOADFUNC(var, f));
         }
@@ -267,12 +269,8 @@ fn print_ir_expr(ir_expr: IRExpr) {
 }
 
 pub fn print_ir(ir: IRCode) {
-    for (fn_name, vars, code) in ir {
-        print!("{} ", fn_name);
-        for var in vars {
-            print!("{} ", var);
-        }
-        println!(":");
+    for (fn_name, var, code) in ir {
+        println!("{} {}:", fn_name, var);
         for ln in code {
             print_ir_expr(ln);
         }

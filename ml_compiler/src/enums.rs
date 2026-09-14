@@ -133,6 +133,7 @@ pub enum Type {
     ERROR,
 }
 
+#[derive(Debug, Clone, PartialEq)]
 pub enum IRExpr {
     ADD(String, String, String),
     SUB(String, String, String),
@@ -156,4 +157,10 @@ pub enum IRExpr {
     LOADFUNC(String, String),
     RETURN(String),
     APP(String, String, String),
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum VarTree {
+    VAR(String),
+    FUNC(String, Box<Vec<VarTree>>),
 }
