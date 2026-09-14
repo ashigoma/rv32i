@@ -177,12 +177,15 @@ fn ast_block_to_ir(ast: Expr, var: String) -> (Vec<IRExpr>, IRCode) {
             code.push(IRExpr::LOADFUNC(var, f));
         }
         Expr::APP(f, a) => {
-            let Expr::ID(s) = *f else { todo!() };
             let x1 = new_tmp_var();
-            let (c1, f1) = ast_block_to_ir(*a, x1.clone());
+            let (c1, f1) = ast_block_to_ir(*f, x1.clone());
+            let x2 = new_tmp_var();
+            let (c2, f2) = ast_block_to_ir(*a, x2.clone());
             code.extend(c1);
+            code.extend(c2);
             func_code.extend(f1);
-            code.push(IRExpr::APP(var, s, x1));
+            func_code.extend(f2);
+            code.push(IRExpr::APP(var, x1, x2));
         }
         Expr::SEMI(e1, e2) => {
             let (c1, f1) = ast_block_to_ir(*e1, new_tmp_var());
