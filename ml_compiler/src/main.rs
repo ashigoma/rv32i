@@ -1,3 +1,4 @@
+mod assembly;
 mod enums;
 mod grammer;
 mod ir;
@@ -5,7 +6,6 @@ mod lexer;
 mod parser;
 mod typing;
 mod vars;
-mod assembly;
 
 use std::fs;
 use std::process;
@@ -59,6 +59,4 @@ fn main() {
 
     let var_map = vars::vartree_to_varmap(var_tree);
     println!("{:?}", var_map);
-
-    println!("{}", assembly::asm_load(2, "_x1", "_f1", &var_map));
 }
