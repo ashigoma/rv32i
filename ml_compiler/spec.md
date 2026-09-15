@@ -62,6 +62,7 @@ _f2 y:
 
 # アセンブリ
 - 引数のレジスタ渡しはしない
+- spはcallerが減算→関数呼び出し→callerが加算
 - stack frameの構造
     - calleeに対応する lambda closureへのポインタ
     - 束縛変数(引数はこれの0番目とみなす)

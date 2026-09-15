@@ -11,7 +11,7 @@ use std::fs;
 use std::process;
 
 fn main() {
-    let code = match fs::read_to_string("tests/add.ml") {
+    let code = match fs::read_to_string("tests/1p1.ml") {
         Ok(r) => r,
         Err(_) => {
             eprintln!("failed to open code");
@@ -48,7 +48,7 @@ fn main() {
     let ir_code = ir::ast_to_ir(ast);
     ir::print_ir(ir_code.clone());
 
-    let var_tree = match vars::ir_func_code_to_vartree(ir_code, "_main".to_string()) {
+    let var_tree = match vars::ir_func_code_to_vartree(ir_code.clone(), "_main".to_string()) {
         Ok(r) => r,
         Err(e) => {
             eprintln!("failed to construct vartree: {}", e);
@@ -59,4 +59,7 @@ fn main() {
 
     let var_map = vars::vartree_to_varmap(var_tree);
     println!("{:?}", var_map);
+
+    let asm_code = assembly::ir_code_to_asm(ir_code, &var_map);
+    println!("{}", asm_code);
 }
