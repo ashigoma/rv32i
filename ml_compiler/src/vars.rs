@@ -23,6 +23,7 @@ pub fn ir_func_code_to_vartree(code: IRCode, label: String) -> Result<VarTree, S
     children.push(VarTree::VAR(v));
 
     for c in func_code.clone() {
+        let mut skip_push_children = false;
         let mut var_defined_new = Vec::new();
         let mut var_free_new = Vec::new();
         match c {
@@ -56,10 +57,11 @@ pub fn ir_func_code_to_vartree(code: IRCode, label: String) -> Result<VarTree, S
             }
             IRExpr::LOADFUNC(label, f) => {
                 children.push(VarTree::VAR(label.clone()));
+                skip_push_children = true;
                 var_defined_new.push(label.clone());
                 let subfunc_res = ir_func_code_to_vartree(code.clone(), f);
                 if let Ok(tree) = subfunc_res {
-                    children.push(tree)
+                    children.push(tree);
                 } else {
                     return subfunc_res;
                 };
@@ -75,10 +77,11 @@ pub fn ir_func_code_to_vartree(code: IRCode, label: String) -> Result<VarTree, S
         var_defined_new.sort();
         var_defined_new.dedup();
         var_defined.extend(var_defined_new.clone());
-        for v in var_defined_new {
-            children.push(VarTree::VAR(v.to_string()));
+        if !skip_push_children {
+            for v in var_defined_new {
+                children.push(VarTree::VAR(v.to_string()));
+            }
         }
-        // println!("free: {:?} defined: {:?}", var_free.clone(), var_defined.clone());
     }
 
     // println!("{:?}: {:?} -> {:?}", label, &func_code, var_free);
@@ -104,6 +107,7 @@ fn write_to_map(map: &mut VarMap, func: &VarTree, scope: Vec<(String, i32, Strin
         let mut i = 0;
         for c in children.iter() {
             if let VarTree::VAR(s) = c {
+                // println!("{} {} {}", func_name, i, s);
                 map_local.insert(s.to_string(), i);
                 scope_.push((s.to_string(), 0, func_name.to_string()));
                 i += 1;
