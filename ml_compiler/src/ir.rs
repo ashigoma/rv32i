@@ -246,31 +246,46 @@ fn new_label() -> String {
     format!("l{id}")
 }
 
-fn print_ir_expr(ir_expr: IRExpr) {
-    match ir_expr {
-        IRExpr::ADD(x, a, b) => println!("\t{} = {} + {}", x, a, b),
-        IRExpr::SUB(x, a, b) => println!("\t{} = {} - {}", x, a, b),
-        IRExpr::GEQ(x, a, b) => println!("\t{} = {} >= {}", x, a, b),
-        IRExpr::LEQ(x, a, b) => println!("\t{} = {} <= {}", x, a, b),
-        IRExpr::GT(x, a, b) => println!("\t{} = {} > {}", x, a, b),
-        IRExpr::LT(x, a, b) => println!("\t{} = {} < {}", x, a, b),
-        IRExpr::EQ(x, a, b) => println!("\t{} = {} == {}", x, a, b),
-        IRExpr::NEQ(x, a, b) => println!("\t{} = {} != {}", x, a, b),
-        IRExpr::AND(x, a, b) => println!("\t{} = {} && {}", x, a, b),
-        IRExpr::OR(x, a, b) => println!("\t{} = {} || {}", x, a, b),
-        IRExpr::NOT(x, a) => println!("\t{} = !{}", x, a),
-        IRExpr::LABEL(s) => println!("{}:", s),
-        IRExpr::JUMP(s) => println!("\tj {}", s),
-        IRExpr::BRANCH(x, s) => println!("\tb {}, {}", x, s),
-        IRExpr::LOAD(x, y) => println!("\t{} = {}", x, y),
-        IRExpr::LOADUNIT(x) => println!("\t{} = ()", x),
-        IRExpr::LOADINT(x, n) => println!("\t{} = {}", x, n),
-        IRExpr::LOADBOOL(x, b) => println!("\t{} = {}", x, if b { "true" } else { "false" }),
-        IRExpr::LOADSTR(x, s) => println!("\t{} = {}", x, s),
-        IRExpr::LOADFUNC(f, s) => println!("\t{} = &{}", f, s),
-        IRExpr::RETURN(x) => println!("\tret {}", x),
-        IRExpr::APP(x, f, a) => println!("\t{} = {} {}", x, f, a),
+pub fn ir_to_string(ir_expr: IRExpr, tab: bool) -> String {
+    let mut res = if tab {
+        match ir_expr {
+            IRExpr::JUMP(_) => "".to_string(),
+            IRExpr::BRANCH(_, _) => "".to_string(),
+            _ => "\t".to_string(),
+        }
+    } else {
+        "".to_string()
+    };
+    res += &match ir_expr {
+        IRExpr::ADD(x, a, b) => format!("{} = {} + {}", x, a, b),
+        IRExpr::SUB(x, a, b) => format!("{} = {} - {}", x, a, b),
+        IRExpr::GEQ(x, a, b) => format!("{} = {} >= {}", x, a, b),
+        IRExpr::LEQ(x, a, b) => format!("{} = {} <= {}", x, a, b),
+        IRExpr::GT(x, a, b) => format!("{} = {} > {}", x, a, b),
+        IRExpr::LT(x, a, b) => format!("{} = {} < {}", x, a, b),
+        IRExpr::EQ(x, a, b) => format!("{} = {} == {}", x, a, b),
+        IRExpr::NEQ(x, a, b) => format!("{} = {} != {}", x, a, b),
+        IRExpr::AND(x, a, b) => format!("{} = {} && {}", x, a, b),
+        IRExpr::OR(x, a, b) => format!("{} = {} || {}", x, a, b),
+        IRExpr::NOT(x, a) => format!("{} = !{}", x, a),
+        IRExpr::LABEL(s) => format!("{}:", s),
+        IRExpr::JUMP(s) => format!("j {}", s),
+        IRExpr::BRANCH(x, s) => format!("b {}, {}", x, s),
+        IRExpr::LOAD(x, y) => format!("{} = {}", x, y),
+        IRExpr::LOADUNIT(x) => format!("{} = ()", x),
+        IRExpr::LOADINT(x, n) => format!("{} = {}", x, n),
+        IRExpr::LOADBOOL(x, b) => format!("{} = {}", x, if b { "true" } else { "false" }),
+        IRExpr::LOADSTR(x, s) => format!("{} = {}", x, s),
+        IRExpr::LOADFUNC(f, s) => format!("{} = &{}", f, s),
+        IRExpr::RETURN(x) => format!("ret {}", x),
+        IRExpr::APP(x, f, a) => format!("{} = {} {}", x, f, a),
     }
+    .to_string();
+    res.to_string()
+}
+
+pub fn print_ir_expr(ir_expr: IRExpr) {
+    println!("{}", ir_to_string(ir_expr, true));
 }
 
 pub fn print_ir(ir: IRCode) {
