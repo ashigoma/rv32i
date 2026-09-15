@@ -4,10 +4,10 @@ use crate::ir::FuncCode;
 use crate::ir::IRCode;
 use std::collections::HashMap;
 
-type LocalVarMapping = Vec<(String, i32)>;
+type LocalVarMapping = HashMap<String, i32>;
 type FreeVarMapping = HashMap<String, (i32, String)>;
 type VarMapEntry = (LocalVarMapping, FreeVarMapping);
-type VarMap = HashMap<String, VarMapEntry>;
+pub type VarMap = HashMap<String, VarMapEntry>;
 
 pub fn ir_func_code_to_vartree(code: IRCode, label: String) -> Result<VarTree, String> {
     let Some((_, v, func_code)) = ir_lookup_fn(code.clone(), label.clone()) else {
@@ -104,7 +104,7 @@ fn write_to_map(map: &mut VarMap, func: &VarTree, scope: Vec<(String, i32, Strin
         let mut i = 0;
         for c in children.iter() {
             if let VarTree::VAR(s) = c {
-                map_local.push((s.to_string(), i));
+                map_local.insert(s.to_string(), i);
                 scope_.push((s.to_string(), 0, func_name.to_string()));
                 i += 1;
             } else if let VarTree::FUNC(_, _, _) = c {
