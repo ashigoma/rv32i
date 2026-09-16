@@ -11,23 +11,23 @@ const REG_T2: i32 = 7; // tmp 2
 const REG_A0: i32 = 10; // arg 1 (return val)
 
 // rd = <var>
+// 関数呼び出しのfreevalはclosure
+// freevalならstack pointerをたどる
 fn asm_load_from_var(rd: i32, var: &str, scope: &str, varmap: &VarMap, toplevel: bool) -> String {
     let mut res = "".to_string();
 
     let (map_local, map_free) = &varmap[scope];
     if let Some(var_index_local) = map_local.get(var) {
         // いまいるstack frame内にある
-        res += &format!("\tlw x{}, {}(x{})\n", rd, (var_index_local + 1) * 4, REG_SP);
+        res += &format!("\tlw x{}, {}(x{})\n", rd, (var_index_local + 2) * 4, REG_SP);
     } else {
-        let (n_derefence, scope_new) = &map_free[var];
+        let (_, scope_new) = &map_free[var];
         // closure pointer
         if toplevel {
             res += &format!("\tlw x{}, 0(x{})\n", rd, REG_SP);
         } else {
             res += &format!("\tlw x{}, 0(x{})\n", rd, rd);
         }
-        // 1つ前のstack frame
-        res += &format!("\tlw x{}, 4(x{})\n", rd, rd);
         // 1つ前のstack frameに戻る
         res += &asm_load_from_var(rd, var, scope_new, varmap, false);
     }
