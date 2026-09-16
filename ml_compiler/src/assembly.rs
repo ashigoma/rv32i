@@ -22,6 +22,7 @@ fn asm_load_from_var(rd: i32, var: &str, scope: &str, varmap: &VarMap) -> String
         res += &format!("\tlw x{}, {}(x{})\n", rd, (var_index_local + 2) * 4, REG_SP);
     } else {
         // いまいるstack frameから飛べるlambda closureにおいてある
+        println!("{} {}", scope, var);
         let (n, scope_new, closure_idx) = &map_free[var];
         assert!(*n == 0);
         res += &format!("\tlw x{}, 4(x{})\n", rd, REG_SP);
@@ -37,7 +38,7 @@ fn asm_load_from_var_closure(rd: i32, var: &str, scope: &str, varmap: &VarMap) -
     let (_, map_free) = &varmap[scope];
     let (n, scope_new, closure_idx) = &map_free[var];
 
-    res += &format!("\tmov x{}, x{}\n", rd, REG_SP);
+    res += &format!("\tmv x{}, x{}\n", rd, REG_SP);
 
     for _ in 0..*n {
         res += &format!("\tlw x{}, 0(x{})\n", rd, rd);
@@ -122,7 +123,7 @@ pub fn ir_code_to_asm(code: IRCode, varmap: &VarMap) -> String {
                     // [hp + 4] = sp
                     // t0 = stack frame size
                     // [hp + 8] = t0
-                    // t0 = <flabel>
+                    // t0 = flabel
                     // [hp + 12] = t0
 
                     // t0 = <v_i>
@@ -135,7 +136,7 @@ pub fn ir_code_to_asm(code: IRCode, varmap: &VarMap) -> String {
                     res += &format!("\tsw x{}, {}(x{})\n", REG_SP, 4, REG_HP);
                     res += &format!("\tli x{}, {}\n", REG_T0, stack_frame_size);
                     res += &format!("\tsw x{}, {}(x{})\n", REG_T0, 8, REG_HP);
-                    res += &asm_load_from_var(REG_T0, &flabel, &f, varmap);
+                    res += &format!("\tli x{}, {}\n", REG_T0, flabel);
                     res += &format!("\tsw x{}, {}(x{})\n", REG_T0, 12, REG_HP);
 
                     for (fvar, entry) in map_free {
@@ -171,7 +172,7 @@ pub fn ir_code_to_asm(code: IRCode, varmap: &VarMap) -> String {
                     res += &asm_load_from_var(REG_T0, &func, &f, varmap);
                     res += &format!("\tlw x{}, 0(x{})\n", REG_T0, REG_T0);
                     res += &format!("\tlw x{}, 8(x{})\n", REG_T1, REG_T0);
-                    res += &format!("\tmov x{}, x{}\n", REG_T2, REG_SP);
+                    res += &format!("\tmv x{}, x{}\n", REG_T2, REG_SP);
                     res += &format!("\tsub x{}, x{}, x{}\n", REG_SP, REG_SP, REG_T1);
                     res += &format!("\tsw x{}, {}(x{})\n", REG_T2, 0, REG_SP);
                     res += &format!("\tsw x{}, {}(x{})\n", REG_T0, 4, REG_SP);
