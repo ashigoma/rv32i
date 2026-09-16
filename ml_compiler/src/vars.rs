@@ -5,7 +5,7 @@ use crate::ir::IRCode;
 use std::collections::HashMap;
 
 type LocalVarMapping = HashMap<String, i32>;
-type FreeVarMapping = HashMap<String, (i32, String)>;
+type FreeVarMapping = HashMap<String, (i32, String, i32)>;
 type VarMapEntry = (LocalVarMapping, FreeVarMapping);
 pub type VarMap = HashMap<String, VarMapEntry>;
 
@@ -113,11 +113,11 @@ fn write_to_map(map: &mut VarMap, func: &VarTree, scope: Vec<(String, i32, Strin
                 i += 1;
             } else if let VarTree::FUNC(_, _, _) = c {
                 let mut scope_2 = scope_.clone();
+                write_to_map(map, &c, scope_2.clone());
                 for j in 0..scope_2.len() {
                     let (v, n, f) = &scope_2[j];
                     scope_2[j] = (v.to_string(), n + 1, f.to_string());
                 }
-                write_to_map(map, &c, scope_2);
             }
         }
 
@@ -127,10 +127,12 @@ fn write_to_map(map: &mut VarMap, func: &VarTree, scope: Vec<(String, i32, Strin
         // println!("scope: {:?}", scope);
         for s in freevals {
             let mut found = false;
+            let mut j = 0;
             for (v, n, f) in scope.iter().rev() {
                 if v == s {
-                    map_free.insert(v.to_string(), (*n, f.to_string()));
+                    map_free.insert(v.to_string(), (*n, f.to_string(), j));
                     found = true;
+                    j += 1;
                     break;
                 }
             }
