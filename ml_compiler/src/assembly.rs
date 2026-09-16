@@ -13,6 +13,8 @@ const REG_A0: i32 = 10; // arg 1 (return val)
 // rd = <var>
 // 関数呼び出しのfreevalはclosure
 // freevalならstack pointerをたどる
+// TODO: これは関数内で、束縛変数orlambda closure内のキャプチャされた自由変数の中身をとってくる用
+// TODO: captureのときに自由変数をとってくる用は別でつくる
 fn asm_load_from_var(rd: i32, var: &str, scope: &str, varmap: &VarMap, toplevel: bool) -> String {
     let mut res = "".to_string();
 
