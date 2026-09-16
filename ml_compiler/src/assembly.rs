@@ -5,6 +5,7 @@ use crate::vars::VarMap;
 
 const REG_RA: i32 = 1; // return address
 const REG_SP: i32 = 2; // stack pointer
+const REG_HP: i32 = 3; // heap pointer (なお規約違反)
 const REG_T0: i32 = 5; // tmp 0
 const REG_T1: i32 = 6; // tmp 1
 const REG_T2: i32 = 7; // tmp 2
@@ -98,16 +99,95 @@ pub fn ir_code_to_asm(code: IRCode, varmap: &VarMap) -> String {
                     res += &format!("\tli x{}, {}\n", REG_T0, if b { 0 } else { 1 });
                     res += &asm_store_to_var(&x, REG_T0, &f, varmap);
                 }
-                IRExpr::LOADSTR(x, b) => {}
+                IRExpr::LOADSTR(x, s) => {
+                    // 文字列をheapに確保
+                    let mut i = 0;
+                    for c in s.chars().take_while(|&c| c != '\0') {
+                        let code = c as u8;
+                        res += &format!("\tli x{}, {}\n", REG_T0, code);
+                        res += &format!("\tsb x{}, {}(x{})\n", REG_T0, i, REG_HP);
+                        i = i + 1;
+                    }
+                    res += &format!("\tsb x{}, {}(x{})\n", 0, i, REG_HP);
+                    res += &asm_store_to_var(&x, REG_HP, &f, varmap);
+                    res += &format!("\taddi x{}, x{}, {}\n", REG_HP, REG_HP, s.len() + 1);
+                }
                 IRExpr::LOADFUNC(x, flabel) => {
-                    res += &format!("\tla x{}, {}\n", REG_T0, flabel);
-                    res += &asm_store_to_var(&x, REG_T0, &f, varmap);
+                    let (map_local, map_free) = &varmap[&f];
+                    let stack_frame_size = 4 * (map_local.len() + 2);
+
+                    // lambda closureをheapに確保
+                    // t0 = [sp + 4]
+                    // [hp] = t0
+                    // [hp + 4] = sp
+                    // t0 = stack frame size
+                    // [hp + 8] = t0
+                    // t0 = <flabel>
+                    // [hp + 12] = t0
+
+                    // t0 = <v_i>
+                    // [hp + 16 + i*4] = t0
+
+                    // <x> = hp
+                    // hp = hp + lambda closure size
+                    res += &format!("\tlw x{}, 4(x{})\n", REG_T0, REG_SP);
+                    res += &format!("\tsw x{}, {}(x{})\n", REG_T0, 0, REG_HP);
+                    res += &format!("\tsw x{}, {}(x{})\n", REG_SP, 4, REG_HP);
+                    res += &format!("\tli x{}, {}\n", REG_T0, stack_frame_size);
+                    res += &format!("\tsw x{}, {}(x{})\n", REG_T0, 8, REG_HP);
+                    res += &asm_load_from_var(REG_T0, &flabel, &f, varmap);
+                    res += &format!("\tsw x{}, {}(x{})\n", REG_T0, 12, REG_HP);
+
+                    for (fvar, entry) in map_free {
+                        let (_, _, closure_idx) = entry;
+                        res += &asm_load_from_var_closure(REG_T0, fvar, &f, varmap);
+                        res +=
+                            &format!("\tsw x{}, {}(x{})\n", REG_T0, 4 * (closure_idx + 4), REG_HP);
+                    }
+
+                    res += &asm_store_to_var(&x, REG_HP, &f, varmap);
+                    res += &format!(
+                        "\taddi x{}, x{}, {}\n",
+                        REG_HP,
+                        REG_HP,
+                        4 * (map_free.len() + 4)
+                    );
                 }
                 IRExpr::RETURN(x) => {
                     res += &asm_load_from_var(REG_A0, &x, &f, varmap);
                     res += "\tret\n";
                 }
-                IRExpr::APP(func, x1, x2) => {}
+                IRExpr::APP(x, func, a) => {
+                    // stackをつくる
+                    // t0 = <func>
+                    // t0 = [t0]        // stack
+                    // t1 = [t0 + 8]    // stack frame size
+                    // t2 = sp
+                    // sp = sp - t1
+                    // [sp] = t2
+                    // [sp + 4] = t0
+                    // t1 = <a>
+                    // [sp + 8] = t1
+                    res += &asm_load_from_var(REG_T0, &func, &f, varmap);
+                    res += &format!("\tlw x{}, 0(x{})\n", REG_T0, REG_T0);
+                    res += &format!("\tlw x{}, 8(x{})\n", REG_T1, REG_T0);
+                    res += &format!("\tmov x{}, x{}\n", REG_T2, REG_SP);
+                    res += &format!("\tsub x{}, x{}, x{}\n", REG_SP, REG_SP, REG_T1);
+                    res += &format!("\tsw x{}, {}(x{})\n", REG_T2, 0, REG_SP);
+                    res += &format!("\tsw x{}, {}(x{})\n", REG_T0, 4, REG_SP);
+                    res += &asm_load_from_var(REG_T1, &a, &f, varmap);
+                    res += &format!("\tsw x{}, {}(x{})\n", REG_T1, 8, REG_SP);
+
+                    // 適用
+                    // t0 = [t0 + 12]
+                    // call t0
+                    res += &format!("\tlw x{}, 12(x{})\n", REG_T0, REG_T0);
+                    res += &format!("\tcall x{}\n", REG_T0);
+
+                    // stackを解放
+                    // sp = [sp]
+                    res += &format!("\tlw x{}, 0(x{})\n", REG_SP, REG_SP);
+                }
                 _ => {}
             }
         }
