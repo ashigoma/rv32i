@@ -13,5 +13,6 @@ make
 ### OCamlコードをrv32i向けにビルドして実行
 `src/1p1.ml`なら
 ```
+make 1p1
 make run 1p1
 ```

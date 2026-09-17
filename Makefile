@@ -45,7 +45,7 @@ $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf
 	$(OBJCOPY) -O binary $< $@
 	$(OBJDUMP) -D $< > $(BUILD_DIR)/$*.dis
 
-run: $(BUILD_DIR)/$(RUN_TARGET).bin cpu
+run:
 	@mkdir -p $(BUILD_DIR)
 	$(CPU) +EXEC=$(BUILD_DIR)/$(RUN_TARGET).bin \
 	       +TRACE_FILE=$(BUILD_DIR)/$(RUN_TARGET).trace \
