@@ -18,7 +18,6 @@ fn ast_block_to_ir(ast: Expr, var: String) -> (Vec<IRExpr>, IRCode) {
     let mut code = Vec::<IRExpr>::new();
     let mut func_code = IRCode::new();
 
-    println!("{:?}", ast.clone());
     match ast {
         Expr::INT(n) => {
             code.push(IRExpr::LOADINT(var, n));
@@ -275,7 +274,7 @@ pub fn ir_to_string(ir_expr: IRExpr, tab: bool) -> String {
         IRExpr::LOADUNIT(x) => format!("{} = ()", x),
         IRExpr::LOADINT(x, n) => format!("{} = {}", x, n),
         IRExpr::LOADBOOL(x, b) => format!("{} = {}", x, if b { "true" } else { "false" }),
-        IRExpr::LOADSTR(x, s) => format!("{} = {}", x, s),
+        IRExpr::LOADSTR(x, s) => format!("{} = \"{}\"", x, s),
         IRExpr::LOADFUNC(f, s) => format!("{} = &{}", f, s),
         IRExpr::RETURN(x) => format!("ret {}", x),
         IRExpr::APP(x, f, a) => format!("{} = {} {}", x, f, a),

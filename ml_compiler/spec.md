@@ -76,6 +76,7 @@ _f2 y:
 - stackには1wordより大きなオブジェクトを置かない
 - スタックフレームの構造
     - callerに対応するsp
+    - 退避したreturn address
     - calleeに対応するlambda closureのポインタ
     - 束縛変数(引数はこれの0番目とみなす) N個
 - lambda closureの構造

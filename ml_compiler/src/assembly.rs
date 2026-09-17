@@ -9,6 +9,7 @@ const REG_HP: i32 = 3; // heap pointer (なお規約違反)
 const REG_T0: i32 = 5; // tmp 0
 const REG_T1: i32 = 6; // tmp 1
 const REG_T2: i32 = 7; // tmp 2
+const REG_T3: i32 = 28; // tmp 3
 const REG_A0: i32 = 10; // arg 1 (return val)
 
 // rd = <var>
@@ -19,14 +20,16 @@ fn asm_load_from_var(rd: i32, var: &str, scope: &str, varmap: &VarMap) -> String
     let (map_local, map_free) = &varmap[scope];
     if let Some(var_index_local) = map_local.get(var) {
         // いまいるstack frame内にある
-        res += &format!("\tlw x{}, {}(x{})\n", rd, (var_index_local + 2) * 4, REG_SP);
+        // rd = [sp + (idx + 3) * 4]
+        res += &format!("\tlw x{}, {}(x{})\n", rd, (var_index_local + 3) * 4, REG_SP);
     } else {
         // いまいるstack frameから飛べるlambda closureにおいてある
-        println!("{} {}", scope, var);
         let (n, scope_new, closure_idx) = &map_free[var];
         assert!(*n == 0);
-        res += &format!("\tlw x{}, 4(x{})\n", rd, REG_SP);
-        res += &format!("\tlw x{}, {}(x{})\n", rd, 4 * (closure_idx + 4), rd);
+        // rd = [sp + 8]                        // *closure
+        // rd = [rd + (closure idx + 4) * 4]
+        res += &format!("\tlw x{}, {}(x{})\n", rd, 8, REG_SP);
+        res += &format!("\tlw x{}, {}(x{})\n", rd, (closure_idx + 4) * 4, rd);
     }
     res
 }
@@ -38,13 +41,16 @@ fn asm_load_from_var_closure(rd: i32, var: &str, scope: &str, varmap: &VarMap) -
     let (_, map_free) = &varmap[scope];
     let (n, scope_new, closure_idx) = &map_free[var];
 
+    // rd = sp
     res += &format!("\tmv x{}, x{}\n", rd, REG_SP);
 
     for _ in 0..*n {
-        res += &format!("\tlw x{}, 0(x{})\n", rd, rd);
+        // rd = [rd]
+        res += &format!("\tlw x{}, {}(x{})\n", rd, 0, rd);
     }
 
-    res += &format!("\tlw x{}, {}(x{})\n", rd, 4 * (closure_idx + 2), rd);
+    // rd = [rd + (idx + 3) * 4]
+    res += &format!("\tlw x{}, {}(x{})\n", rd, (closure_idx + 3) * 4, rd);
     res
 }
 
@@ -53,7 +59,8 @@ fn asm_store_to_var(var: &str, rd: i32, scope: &str, varmap: &VarMap) -> String 
     let mut res = "".to_string();
     let (map_local, map_free) = &varmap[scope];
     if let Some(var_index_local) = map_local.get(var) {
-        res += &format!("\tsw x{}, {}(x{})\n", rd, (var_index_local + 2) * 4, REG_SP);
+        // [sp + (idx + 3) * 4] = rd
+        res += &format!("\tsw x{}, {}(x{})\n", rd, (var_index_local + 3) * 4, REG_SP);
     } else {
         panic!()
     }
@@ -115,23 +122,23 @@ pub fn ir_code_to_asm(code: IRCode, varmap: &VarMap) -> String {
                 }
                 IRExpr::LOADFUNC(x, flabel) => {
                     let (map_local, map_free) = &varmap[&f];
-                    let stack_frame_size = 4 * (map_local.len() + 2);
+                    let stack_frame_size = (map_local.len() + 3) * 4;
 
                     // lambda closureをheapに確保
-                    // t0 = [sp + 4]
-                    // [hp] = t0
-                    // [hp + 4] = sp
+                    // t0 = [sp + 8]            // *親closure
+                    // [hp] = t0                // closure[0] = *親closure
+                    // [hp + 4] = sp            // closure[1] = caller stack frame
                     // t0 = stack frame size
-                    // [hp + 8] = t0
+                    // [hp + 8] = t0            // closure[2] = stack frame size
                     // t0 = flabel
-                    // [hp + 12] = t0
+                    // [hp + 12] = t0           // closure[3] = 開始アドレス
 
                     // t0 = <v_i>
-                    // [hp + 16 + i*4] = t0
+                    // [hp + 16 + i*4] = t0     // 各自由変数をcapture
 
-                    // <x> = hp
-                    // hp = hp + lambda closure size
-                    res += &format!("\tlw x{}, 4(x{})\n", REG_T0, REG_SP);
+                    // <x> = hp                 // x = *closure
+                    // hp = hp + closure size   // heap確保
+                    res += &format!("\tlw x{}, {}(x{})\n", REG_T0, 8, REG_SP);
                     res += &format!("\tsw x{}, {}(x{})\n", REG_T0, 0, REG_HP);
                     res += &format!("\tsw x{}, {}(x{})\n", REG_SP, 4, REG_HP);
                     res += &format!("\tli x{}, {}\n", REG_T0, stack_frame_size);
@@ -160,34 +167,37 @@ pub fn ir_code_to_asm(code: IRCode, varmap: &VarMap) -> String {
                 }
                 IRExpr::APP(x, func, a) => {
                     // stackをつくる
-                    // t0 = <func>
-                    // t0 = [t0]        // stack
+                    // t0 = <func>      // *closure
                     // t1 = [t0 + 8]    // stack frame size
-                    // t2 = sp
-                    // sp = sp - t1
-                    // [sp] = t2
-                    // [sp + 4] = t0
-                    // t1 = <a>
-                    // [sp + 8] = t1
+                    // t2 = sp          // old sp
+                    // t3 = <a>         // arg
+                    // sp = sp - t1     // stack frame確保
+                    // [sp] = t2        // stack frame[0] = old sp
+                    // [sp + 4] = ra    // stack frame[1] = old return address
+                    // [sp + 8] = t0    // stack frame[2] = *closure
+                    // [sp + 12] = t3   // stack frame[3] = arg
                     res += &asm_load_from_var(REG_T0, &func, &f, varmap);
-                    res += &format!("\tlw x{}, 0(x{})\n", REG_T0, REG_T0);
-                    res += &format!("\tlw x{}, 8(x{})\n", REG_T1, REG_T0);
+                    res += &format!("\tlw x{}, {}(x{})\n", REG_T1, 8, REG_T0);
                     res += &format!("\tmv x{}, x{}\n", REG_T2, REG_SP);
+                    res += &asm_load_from_var(REG_T3, &a, &f, varmap);
                     res += &format!("\tsub x{}, x{}, x{}\n", REG_SP, REG_SP, REG_T1);
                     res += &format!("\tsw x{}, {}(x{})\n", REG_T2, 0, REG_SP);
-                    res += &format!("\tsw x{}, {}(x{})\n", REG_T0, 4, REG_SP);
-                    res += &asm_load_from_var(REG_T1, &a, &f, varmap);
-                    res += &format!("\tsw x{}, {}(x{})\n", REG_T1, 8, REG_SP);
+                    res += &format!("\tsw x{}, {}(x{})\n", REG_RA, 4, REG_SP);
+                    res += &format!("\tsw x{}, {}(x{})\n", REG_T0, 8, REG_SP);
+                    res += &format!("\tsw x{}, {}(x{})\n", REG_T3, 12, REG_SP);
 
-                    // 適用
-                    // t0 = [t0 + 12]
+                    // t0 = [t0 + 12]   // entry point
                     // call t0
-                    res += &format!("\tlw x{}, 12(x{})\n", REG_T0, REG_T0);
+                    res += &format!("\tlw x{}, {}(x{})\n", REG_T0, 12, REG_T0);
                     res += &format!("\tcall x{}\n", REG_T0);
 
-                    // stackを解放
-                    // sp = [sp]
-                    res += &format!("\tlw x{}, 0(x{})\n", REG_SP, REG_SP);
+                    // ra = [sp + 4]    // return addressをpop
+                    // sp = [sp]        // spをpop
+                    res += &format!("\tlw x{}, {}(x{})\n", REG_RA, 4, REG_SP);
+                    res += &format!("\tlw x{}, {}(x{})\n", REG_SP, 0, REG_SP);
+
+                    // <x> = a0         // x = func(a)
+                    res += &asm_store_to_var(&x, REG_A0, &f, varmap);
                 }
                 _ => {}
             }
