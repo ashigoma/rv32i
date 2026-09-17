@@ -2,7 +2,7 @@
 - svでrv32iを書く
 - テストはspikeとsvでトレースログを比較することによって行う
 
-# ビルドと実行
+# build & test
 ```
 make check
 ```

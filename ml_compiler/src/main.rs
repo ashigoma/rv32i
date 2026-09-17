@@ -32,11 +32,10 @@ fn main() {
     let code = fs::read_to_string(&cli.input)
         .unwrap_or_else(|e| exit(&format!("failed to open code ({}): {}", cli.input, e)));
 
-    let tokens = lexer::tokenize(&code)
-        .unwrap_or_else(|e| exit(&format!("failed to tokenize: {}", e)));
+    let tokens =
+        lexer::tokenize(&code).unwrap_or_else(|e| exit(&format!("failed to tokenize: {}", e)));
 
-    let ast = parser::parse(tokens)
-        .unwrap_or_else(|e| exit(&format!("failed to parse: {}", e)));
+    let ast = parser::parse(tokens).unwrap_or_else(|e| exit(&format!("failed to parse: {}", e)));
 
     let (_ast_type, _constr) = typing::get_type_and_unified_constr(ast.clone());
 

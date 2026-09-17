@@ -72,6 +72,18 @@ pub fn ir_code_to_asm(code: IRCode, varmap: &VarMap) -> String {
     res += ".global _main\n";
     for (f, _, fn_code) in code {
         res += &format!("{}:\n", f);
+        if f == "_main" {
+            let (map_local, _) = &varmap[&f];
+            let stack_frame_size = (map_local.len() + 3) * 4;
+            // stack frameの確保
+            // sp = sp - stack_frame_size
+            res += &format!(
+                "\taddi x{}, x{}, {}\n",
+                REG_SP,
+                REG_SP,
+                -(stack_frame_size as i32)
+            );
+        }
         for c in fn_code {
             res += "# ";
             res += &ir_to_string(c.clone(), false);
