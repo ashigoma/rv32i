@@ -12,17 +12,12 @@ BUILD_DIR    := ./build
 BOOT_S        := ./boot.s
 LINKER_SCRIPT := ./link.ld
 
-CFLAGS  := -march=rv32i -mabi=ilp32 -O0 -nostdlib -ffreestanding -I$(BOOT_S)
+CFLAGS  := -march=rv32i -mabi=ilp32 -O0 -nostdlib -ffreestanding
 LDFLAGS := -T $(LINKER_SCRIPT) -Wl,--no-warn-rwx-segments
 
 VPATH := src:ml_compiler/tests
 
-ifeq ($(firstword $(MAKECMDGOALS)),run)
-  RUN_TARGET := $(word 2, $(MAKECMDGOALS))
-  $(eval $(RUN_TARGET):;@:)
-endif
-
-.PHONY: all cpu compiler clean run
+.PHONY: all cpu compiler clean
 .SECONDARY:
 
 all: cpu compiler
@@ -33,7 +28,7 @@ cpu:
 compiler:
 	cd $(COMPILER_DIR) && cargo build
 
-$(BUILD_DIR)/%.s: %.ml compiler
+$(BUILD_DIR)/%.s: %.ml $(COMPILER)
 	@mkdir -p $(BUILD_DIR)
 	$(COMPILER) -i $< -o $@
 
@@ -45,16 +40,14 @@ $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf
 	$(OBJCOPY) -O binary $< $@
 	$(OBJDUMP) -D $< > $(BUILD_DIR)/$*.dis
 
-run:
-	@mkdir -p $(BUILD_DIR)
-	$(CPU) +EXEC=$(BUILD_DIR)/$(RUN_TARGET).bin \
-	       +TRACE_FILE=$(BUILD_DIR)/$(RUN_TARGET).trace \
-	       +LOG_FILE=$(BUILD_DIR)/$(RUN_TARGET).log \
-	       +VCD_FILE=$(BUILD_DIR)/$(RUN_TARGET).vcd
-	cat $(BUILD_DIR)/$(RUN_TARGET).log
+$(COMPILER): compiler
 
-%: $(BUILD_DIR)/%.bin
-	@:
+%: $(BUILD_DIR)/%.bin $(CPU)
+	$(CPU) +EXEC=$(BUILD_DIR)/$@.bin \
+	       +TRACE_FILE=$(BUILD_DIR)/$@.trace \
+	       +LOG_FILE=$(BUILD_DIR)/$@.log \
+	       +VCD_FILE=$(BUILD_DIR)/$@.vcd
+	cat $(BUILD_DIR)/$@.log
 
 clean:
 	rm -rf $(BUILD_DIR)

@@ -274,7 +274,10 @@ pub fn ir_to_string(ir_expr: IRExpr, tab: bool) -> String {
         IRExpr::LOADUNIT(x) => format!("{} = ()", x),
         IRExpr::LOADINT(x, n) => format!("{} = {}", x, n),
         IRExpr::LOADBOOL(x, b) => format!("{} = {}", x, if b { "true" } else { "false" }),
-        IRExpr::LOADSTR(x, s) => format!("{} = \"{}\"", x, s),
+        IRExpr::LOADSTR(x, s) => {
+            let escaped = s.escape_default().to_string();
+            format!("{} = \"{}\"", x, escaped)
+        }
         IRExpr::LOADFUNC(f, s) => format!("{} = &{}", f, s),
         IRExpr::RETURN(x) => format!("ret {}", x),
         IRExpr::APP(x, f, a) => format!("{} = {} {}", x, f, a),

@@ -1,3 +1,4 @@
+use crate::lexer::unescape;
 use logos::Logos;
 use std::fmt;
 
@@ -74,9 +75,9 @@ pub enum Token {
     SEMI,
 
     #[regex(r#""([^"\\]|\\.)*""#, |lex| {
-            let s = lex.slice();
-            s[1..s.len() - 1].to_string()
-        })]
+        let s = lex.slice();
+        unescape(&s[1..s.len() - 1])
+    })]
     STRING(String),
 
     #[regex("[0-9]+", |lex| lex.slice().parse::<i32>().ok())]

@@ -1,1 +1,1 @@
-print_string "Hello, World!"
+print_string "Hello, World!\n"
