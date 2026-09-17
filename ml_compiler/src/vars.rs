@@ -132,9 +132,9 @@ fn write_to_map(map: &mut VarMap, func: &VarTree, scope: Vec<(String, i32, Strin
                 if v == s {
                     map_free.insert(v.to_string(), (*n, f.to_string(), j));
                     found = true;
-                    j += 1;
                     break;
                 }
+                j += 1;
             }
             if !found {
                 println!("write_to_map: undefined variable: {}", s);

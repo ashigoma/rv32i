@@ -1,6 +1,37 @@
+# 実装
+single cycle, in-order
+
+# 入出力
+入力は無し
+標準出力はMMIOから
+cpu例外は標準出力に行く
+トレースログは自動でlogfileへ
+
+# メモリマップ
+### c++
+- 0x2000_0000 ~ 0x2000_0FFF : RAM
+    - 標準出力系MMIO, シミュレータ→ホストの通信
+- 0x8000_0000 ~ 0x8000_FFFF : ROM
+    - .text.init エントリポイント
+    - .text *.text プログラム
+    - .rodata 定数
+    - .data 初期値あり変数の初期値
+- 0x9000_0000 ~ 0x9000_FFFF : RAM
+    - .data 初期値あり変数の実体
+    - .bss 初期値なし変数
+    - stack (上から)
+
+### ocaml subset
+- 0x2000_0000 ~ 0x2000_0FFF : RAM
+    - 標準出力系MMIO, シミュレータ→ホストの通信
+- 0x8000_0000 ~ 0x8000_FFFF : ROM
+    - .text.init エントリポイント
+- 0x9000_0000 ~ 0x9000_FFFF : RAM
+    - stack (上から)
+    - heap (下から)
 
 # [RV32I Base Integer Instruction Set](https://docs.riscv.org/reference/isa/v20260120/unpriv/rv32.html)
-[アセンブル](http://five-embeddev.com/riscv-user-isa-manual/Priv-v1.12/instr-table.html)
+[instruction set](http://five-embeddev.com/riscv-user-isa-manual/Priv-v1.12/instr-table.html)
 | 命令 | 例 | 操作 | 備考 | 略称 |
 | --- | --- | --- | --- | --- |
 | LUI | `lui x1, 0x12345` | `x1` ← `0x12345000` | 上位20bitに格納 | **L**oad **U**pper **I**mmediate |
@@ -45,27 +76,3 @@
 | PAUSE | `pause` | - | パイプライン一時停止ヒント | **PAUSE** |
 | ECALL | `ecall` | - | システムコール発生 | **E**nvironment **CALL** |
 | EBREAK | `ebreak` | - | ブレークポイント発生 | **E**nvironment **BREAK** |
-
-# 入出力
-入力は無し
-標準出力はMMIOから
-cpu例外は標準出力に行く
-トレースログは自動でlogfileへ
-
-# メモリマップ
-- 0x2000_0000 ~ 0x2000_0FFF : RAM
-    - 標準出力系, fromhost / tohost
-- 0x8000_0000 ~ 0x8000_FFFF : ROM
-    - .text.init エントリポイント
-    - .text *.text プログラム
-    - .rodata 定数
-    - .data 初期値あり変数の初期値
-- 0x9000_0000 ~ 0x9000_FFFF : RAM
-    - .data 初期値あり変数の実体
-    - .bss 初期値なし変数
-    - stack (上から)
-
-# エントリポイント (boot.s)
-- .dataの初期値をRAMへコピー
-- .bssをクリア
-- spをセット

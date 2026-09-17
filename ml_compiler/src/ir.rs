@@ -283,10 +283,12 @@ pub fn ir_to_string(ir_expr: IRExpr, tab: bool) -> String {
     res.to_string()
 }
 
+#[allow(unused)]
 pub fn print_ir_expr(ir_expr: IRExpr) {
     println!("{}", ir_to_string(ir_expr, true));
 }
 
+#[allow(unused)]
 pub fn print_ir(ir: IRCode) {
     for (fn_name, var, code) in ir {
         println!("{} {}:", fn_name, var);

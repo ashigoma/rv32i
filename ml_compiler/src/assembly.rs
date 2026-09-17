@@ -24,7 +24,7 @@ fn asm_load_from_var(rd: i32, var: &str, scope: &str, varmap: &VarMap) -> String
         res += &format!("\tlw x{}, {}(x{})\n", rd, (var_index_local + 3) * 4, REG_SP);
     } else {
         // いまいるstack frameから飛べるlambda closureにおいてある
-        let (n, scope_new, closure_idx) = &map_free[var];
+        let (n, _, closure_idx) = &map_free[var];
         assert!(*n == 0);
         // rd = [sp + 8]                        // *closure
         // rd = [rd + (closure idx + 4) * 4]
@@ -39,7 +39,7 @@ fn asm_load_from_var_closure(rd: i32, var: &str, scope: &str, varmap: &VarMap) -
     let mut res = "".to_string();
 
     let (_, map_free) = &varmap[scope];
-    let (n, scope_new, closure_idx) = &map_free[var];
+    let (n, _, closure_idx) = &map_free[var];
 
     // rd = sp
     res += &format!("\tmv x{}, x{}\n", rd, REG_SP);
@@ -57,7 +57,7 @@ fn asm_load_from_var_closure(rd: i32, var: &str, scope: &str, varmap: &VarMap) -
 // <var> = rd
 fn asm_store_to_var(var: &str, rd: i32, scope: &str, varmap: &VarMap) -> String {
     let mut res = "".to_string();
-    let (map_local, map_free) = &varmap[scope];
+    let (map_local, _) = &varmap[scope];
     if let Some(var_index_local) = map_local.get(var) {
         // [sp + (idx + 3) * 4] = rd
         res += &format!("\tsw x{}, {}(x{})\n", rd, (var_index_local + 3) * 4, REG_SP);
@@ -70,7 +70,7 @@ fn asm_store_to_var(var: &str, rd: i32, scope: &str, varmap: &VarMap) -> String 
 pub fn ir_code_to_asm(code: IRCode, varmap: &VarMap) -> String {
     let mut res = "".to_string();
     res += ".global _main\n";
-    for (f, var, fn_code) in code {
+    for (f, _, fn_code) in code {
         res += &format!("{}:\n", f);
         for c in fn_code {
             res += "# ";
@@ -204,6 +204,5 @@ pub fn ir_code_to_asm(code: IRCode, varmap: &VarMap) -> String {
             }
         }
     }
-    res += "\n";
     res.to_string()
 }
