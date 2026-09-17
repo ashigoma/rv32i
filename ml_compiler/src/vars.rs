@@ -19,8 +19,15 @@ pub fn ir_func_code_to_vartree(code: IRCode, label: String) -> Result<VarTree, S
     let mut var_defined = Vec::new();
     let mut var_free = Vec::new();
 
-    var_defined.push(v.clone());
-    children.push(VarTree::VAR(v));
+    if label == "_main" {
+        var_defined.push("print_string".to_string());
+        var_defined.push("print_int".to_string());
+        children.push(VarTree::VAR("print_string".to_string()));
+        children.push(VarTree::VAR("print_int".to_string()));
+    } else {
+        var_defined.push(v.clone());
+        children.push(VarTree::VAR(v));
+    }
 
     for c in func_code.clone() {
         let mut skip_push_children = false;

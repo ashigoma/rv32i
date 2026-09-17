@@ -7,6 +7,17 @@ single cycle, in-order
 cpu例外は標準出力に行く
 トレースログは自動でlogfileへ
 
+# MMIO
+- 疑似標準出力
+    - 0x20000000 へのstoreで、sv側から標準出力に1文字書き出し
+    - 0x20000004 へのstoreで、sv側から標準出力に16進整数を書き出し
+    - 0x20000008 へのstoreで、sv側から標準出力に整数を書き出し
+- 実行開始
+    - 0x80000000 のentry pointから実行開始する
+- 実行停止
+    - sv側では、ebreak命令
+    - spike側では、tohostに1をstore
+
 # メモリマップ
 ### c++
 - 0x2000_0000 ~ 0x2000_0FFF : RAM

@@ -51,6 +51,7 @@ run: $(BUILD_DIR)/$(RUN_TARGET).bin cpu
 	       +TRACE_FILE=$(BUILD_DIR)/$(RUN_TARGET).trace \
 	       +LOG_FILE=$(BUILD_DIR)/$(RUN_TARGET).log \
 	       +VCD_FILE=$(BUILD_DIR)/$(RUN_TARGET).vcd
+	cat $(BUILD_DIR)/$(RUN_TARGET).log
 
 %: $(BUILD_DIR)/%.bin
 	@:
