@@ -15,3 +15,8 @@ make
 ```
 make hello_world
 ```
+
+### rv32i spike simと自前実装rv32iでトレースログが一致しているか確認
+```
+make compare hello_world
+```

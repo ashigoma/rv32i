@@ -116,7 +116,7 @@ fn write_to_map(map: &mut VarMap, func: &VarTree, scope: Vec<(String, i32, Strin
             if let VarTree::VAR(s) = c {
                 // println!("{} {} {}", func_name, i, s);
                 map_local.insert(s.to_string(), i);
-                scope_.push((s.to_string(), 0, func_name.to_string()));
+                scope_.push((s.to_string(), 1, func_name.to_string()));
                 i += 1;
             } else if let VarTree::FUNC(_, _, _) = c {
                 let mut scope_2 = scope_.clone();
@@ -132,16 +132,16 @@ fn write_to_map(map: &mut VarMap, func: &VarTree, scope: Vec<(String, i32, Strin
         // println!("map:{:?}\nfunc:{:?}\nscope:{:?}", map, func, scope);
         // println!("freevals: {:?}", freevals);
         // println!("scope: {:?}", scope);
+        let mut j = 0;
         for s in freevals {
             let mut found = false;
-            let mut j = 0;
             for (v, n, f) in scope.iter().rev() {
                 if v == s {
                     map_free.insert(v.to_string(), (*n, f.to_string(), j));
                     found = true;
+                    j += 1;
                     break;
                 }
-                j += 1;
             }
             if !found {
                 println!("write_to_map: undefined variable: {}", s);

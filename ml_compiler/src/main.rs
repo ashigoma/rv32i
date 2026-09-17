@@ -45,7 +45,7 @@ fn main() {
         .unwrap_or_else(|e| exit(&format!("failed to construct vartree: {}", e)));
 
     let var_map = vars::vartree_to_varmap(var_tree);
-    // println!("{:?}", var_map);
+    println!("{:?}", var_map);
     let asm_code = assembly::ir_code_to_asm(ir_code, &var_map);
 
     if let Some(out_path) = cli.output {

@@ -44,7 +44,8 @@ label_bltu:
     nop
 label_bgeu:
 
-    addi    t0, zero, -1
+    addi    t0, zero, 25
+    addi    t0, t0, -36
     sw      t0, 0(sp)
 
     lb      t1, 0(sp)
