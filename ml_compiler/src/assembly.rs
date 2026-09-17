@@ -85,25 +85,29 @@ pub fn ir_code_to_asm(code: IRCode, varmap: &VarMap) -> String {
             );
 
             // 組み込み関数のclosure作成
+            // [hp + 4] = sp
             // [hp + 8] = 16
             // [hp + 12] = print_string (local idx: 0)
             // [sp + 12] = hp
             // hp += 16
+            // [hp + 4] = sp
             // [hp + 8] = 16
             // [hp + 12] = print_int (local idx: 1)
-            // [sp + 20] = hp
+            // [sp + 16] = hp
             // hp += 16
+            res += &format!("\tsw x{}, {}(x{})\n", REG_SP, 4, REG_HP);
             res += &format!("\tli x{}, {}\n", REG_T0, 16);
             res += &format!("\tsw x{}, {}(x{})\n", REG_T0, 8, REG_HP);
             res += &format!("\tla x{}, {}\n", REG_T0, "print_string");
             res += &format!("\tsw x{}, {}(x{})\n", REG_T0, 12, REG_HP);
             res += &format!("\tsw x{}, {}(x{})\n", REG_HP, 12, REG_SP);
             res += &format!("\taddi x{}, x{}, {}\n", REG_HP, REG_HP, 16);
+            res += &format!("\tsw x{}, {}(x{})\n", REG_SP, 4, REG_HP);
             res += &format!("\tli x{}, {}\n", REG_T0, 16);
             res += &format!("\tsw x{}, {}(x{})\n", REG_T0, 8, REG_HP);
             res += &format!("\tla x{}, {}\n", REG_T0, "print_int");
             res += &format!("\tsw x{}, {}(x{})\n", REG_T0, 12, REG_HP);
-            res += &format!("\tsw x{}, {}(x{})\n", REG_HP, 20, REG_SP);
+            res += &format!("\tsw x{}, {}(x{})\n", REG_HP, 16, REG_SP);
             res += &format!("\taddi x{}, x{}, {}\n", REG_HP, REG_HP, 16);
         }
         for c in fn_code {
