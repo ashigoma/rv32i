@@ -1,1 +1,1 @@
-let f = fun x -> x + 1 in f 2
+print_int (let f = fun x -> x + 1 in f 2); print_string "\n"
