@@ -69,10 +69,11 @@ fn asm_store_to_var(var: &str, rd: i32, scope: &str, varmap: &VarMap) -> String 
 
 pub fn ir_code_to_asm(code: IRCode, varmap: &VarMap) -> String {
     let mut res = "".to_string();
+    res += ".global _main\n";
     for (f, var, fn_code) in code {
         res += &format!("{}:\n", f);
         for c in fn_code {
-            res += "// ";
+            res += "# ";
             res += &ir_to_string(c.clone(), false);
             res += "\n";
             match c {
@@ -143,7 +144,7 @@ pub fn ir_code_to_asm(code: IRCode, varmap: &VarMap) -> String {
                     res += &format!("\tsw x{}, {}(x{})\n", REG_SP, 4, REG_HP);
                     res += &format!("\tli x{}, {}\n", REG_T0, stack_frame_size);
                     res += &format!("\tsw x{}, {}(x{})\n", REG_T0, 8, REG_HP);
-                    res += &format!("\tli x{}, {}\n", REG_T0, flabel);
+                    res += &format!("\tla x{}, {}\n", REG_T0, flabel);
                     res += &format!("\tsw x{}, {}(x{})\n", REG_T0, 12, REG_HP);
 
                     for (fvar, entry) in map_free {
@@ -189,7 +190,7 @@ pub fn ir_code_to_asm(code: IRCode, varmap: &VarMap) -> String {
                     // t0 = [t0 + 12]   // entry point
                     // call t0
                     res += &format!("\tlw x{}, {}(x{})\n", REG_T0, 12, REG_T0);
-                    res += &format!("\tcall x{}\n", REG_T0);
+                    res += &format!("\tjalr x{}\n", REG_T0);
 
                     // ra = [sp + 4]    // return addressをpop
                     // sp = [sp]        // spをpop
@@ -203,5 +204,6 @@ pub fn ir_code_to_asm(code: IRCode, varmap: &VarMap) -> String {
             }
         }
     }
+    res += "\n";
     res.to_string()
 }
