@@ -25,7 +25,6 @@ fn asm_load_from_var(rd: i32, var: &str, scope: &str, varmap: &VarMap) -> String
     } else {
         // いまいるstack frameから飛べるlambda closureにおいてある
         let (n, _, closure_idx) = &map_free[var];
-        assert!(*n == 1);
         // rd = [sp + 8]                        // *closure
         // rd = [rd + (closure idx + 4) * 4]
         res += &format!("\tlw x{}, {}(x{})\n", rd, 8, REG_SP);
@@ -56,7 +55,8 @@ fn asm_load_outer_local_var(
     // n = 2なら、stack frame上のpointer→lambda closureの中のold sp→そのstack frame上
     // n = 3なら、stack frame上のpointer→lambda closure→old lambda closureの中のold sp→そのstack frame上
 
-    println!("asm_load_outer_local_var: {}", n);
+    println!("asm_load_outer_local_var: {} {} {} {}", var, scope, func, n);
+    println!("scope_new: {}", scope_new);
 
     if *n == 1 {
         let local_idx = map_local_now[var];
@@ -67,7 +67,7 @@ fn asm_load_outer_local_var(
         // rd = [sp + 8]    // *closure
         res += &format!("\tlw x{}, {}(x{})\n", rd, 8, REG_SP);
 
-        for _ in 0..(*n - 1) {
+        for _ in 0..(*n - 2) {
             // rd = [rd]    // 外側closure
             res += &format!("\tlw x{}, {}(x{})\n", rd, 0, rd);
         }

@@ -20,7 +20,7 @@ module mem (
   localparam MEM_SIZE_2 = 32'h00010004;
 
   logic [7:0] mem1[MEM_SIZE_1] = '{default: 8'h00};
-  logic [7:0] mem2[MEM_SIZE_2] = '{default: 8'h00};
+  logic [7:0] mem2[MEM_SIZE_2] = '{default: 8'hCC};
   logic [31:0] adr_offset_1;
   logic [31:0] adr_offset_2_inst;
   logic [31:0] adr_offset_2_data;

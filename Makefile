@@ -35,12 +35,10 @@ cpu: $(CPU)
 $(CPU):
 	$(MAKE) -C $(CPU_DIR)
 
-compiler: $(COMPILER)
-
-$(COMPILER):
+compiler: 
 	cd $(COMPILER_DIR) && cargo build
 
-$(S_FILES): $(BUILD_DIR)/%.s: src/%.ml $(COMPILER)
+$(S_FILES): $(BUILD_DIR)/%.s: src/%.ml compiler
 	@mkdir -p $(BUILD_DIR)
 	$(COMPILER) -i $< -o $@
 

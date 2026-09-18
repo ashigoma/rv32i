@@ -116,15 +116,15 @@ fn write_to_map(map: &mut VarMap, func: &VarTree, scope: Vec<(String, i32, Strin
             if let VarTree::VAR(s) = c {
                 // println!("{} {} {}", func_name, i, s);
                 map_local.insert(s.to_string(), i);
-                scope_.push((s.to_string(), 1, func_name.to_string()));
+                scope_.push((s.to_string(), 0, func_name.to_string()));
                 i += 1;
             } else if let VarTree::FUNC(_, _, _) = c {
                 let mut scope_2 = scope_.clone();
-                write_to_map(map, &c, scope_2.clone());
                 for j in 0..scope_2.len() {
                     let (v, n, f) = &scope_2[j];
                     scope_2[j] = (v.to_string(), n + 1, f.to_string());
                 }
+                write_to_map(map, &c, scope_2);
             }
         }
 

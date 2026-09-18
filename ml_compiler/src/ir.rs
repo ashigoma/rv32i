@@ -292,11 +292,11 @@ pub fn print_ir_expr(ir_expr: IRExpr) {
 }
 
 #[allow(unused)]
-pub fn print_ir(ir: IRCode) {
+pub fn print_ir(ir: &IRCode) {
     for (fn_name, var, code) in ir {
         println!("{} {}:", fn_name, var);
         for ln in code {
-            print_ir_expr(ln);
+            print_ir_expr(ln.clone());
         }
     }
 }
