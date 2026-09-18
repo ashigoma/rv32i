@@ -184,6 +184,7 @@ pub fn vartree_to_varmap(tree: VarTree) -> Result<VarMap, String> {
     Ok(map)
 }
 
+#[allow(unused)]
 pub fn print_varmap(map: &VarMap) {
     let mut funcs: Vec<_> = map.iter().collect();
     funcs.sort_by_key(|(k, _)| if *k == "_main" { "" } else { k.as_str() });

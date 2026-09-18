@@ -1,0 +1,1 @@
+print_int (let f = fun x1 -> fun x2 -> fun x3 -> fun x4 -> fun x5 -> fun x6 -> fun x7 -> fun x8 -> fun x9 -> fun x10 -> x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x9 + x10 in f 1 2 3 4 5 6 7 8 9 10); print_string "\n"
