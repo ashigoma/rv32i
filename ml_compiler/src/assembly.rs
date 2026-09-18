@@ -128,7 +128,8 @@ pub fn ir_code_to_asm(code: IRCode, varmap: &VarMap) -> String {
             res += "\n";
             match c {
                 IRExpr::ADD(x1, x2, x3) => emit_binop(&mut res, "add", &x1, &x2, &x3, &f, varmap),
-                IRExpr::SUB(x1, x2, x3) => emit_binop(&mut res, "sub", &x1, &x2, &x3, &f, varmap),IRExpr::GEQ(x1, x2, x3) => emit_binop(&mut res, "slt", &x1, &x2, &x3, &f, varmap),
+                IRExpr::SUB(x1, x2, x3) => emit_binop(&mut res, "sub", &x1, &x2, &x3, &f, varmap),
+                IRExpr::GEQ(x1, x2, x3) => emit_binop(&mut res, "slt", &x1, &x2, &x3, &f, varmap),
                 IRExpr::LEQ(x1, x2, x3) => emit_binop(&mut res, "slt", &x1, &x3, &x2, &f, varmap),
                 IRExpr::GT(x1, x2, x3) => {
                     res += &asm_load_from_var(REG_T1, &x2, &f, varmap);
@@ -208,7 +209,9 @@ pub fn ir_code_to_asm(code: IRCode, varmap: &VarMap) -> String {
                     let (map_local, map_free) = &varmap[&flabel];
                     let stack_frame_size = (map_local.len() + 3) * 4;
 
-                    // lambda closureをheapに確保
+                    // 再帰関数対策で、まずclosureのポインタを確定させる
+                    // <x> = hp                 // x = *closure
+
                     // t0 = [sp + 8]            // *親closure
                     // [hp] = t0                // closure[0] = *親closure
                     // [hp + 4] = sp            // closure[1] = caller stack frame
@@ -220,8 +223,9 @@ pub fn ir_code_to_asm(code: IRCode, varmap: &VarMap) -> String {
                     // t0 = <v_i>
                     // [hp + 16 + i*4] = t0     // 各自由変数をcapture
 
-                    // <x> = hp                 // x = *closure
                     // hp = hp + closure size   // heap確保
+                    res += &asm_store_to_var(&x, REG_HP, &f, varmap);
+
                     res += &format!("\tlw x{}, {}(x{})\n", REG_T0, 8, REG_SP);
                     res += &format!("\tsw x{}, {}(x{})\n", REG_T0, 0, REG_HP);
                     res += &format!("\tsw x{}, {}(x{})\n", REG_SP, 4, REG_HP);
@@ -237,7 +241,6 @@ pub fn ir_code_to_asm(code: IRCode, varmap: &VarMap) -> String {
                             &format!("\tsw x{}, {}(x{})\n", REG_T0, 4 * (closure_idx + 4), REG_HP);
                     }
 
-                    res += &asm_store_to_var(&x, REG_HP, &f, varmap);
                     res += &format!(
                         "\taddi x{}, x{}, {}\n",
                         REG_HP,
