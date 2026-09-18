@@ -1,4 +1,4 @@
-// mod assembly;
+mod assembly;
 mod enums;
 mod grammer;
 mod ir;
@@ -40,19 +40,22 @@ fn main() {
     let (_ast_type, _constr) = typing::get_type_and_unified_constr(ast.clone());
 
     let ir_code = ir::ast_to_ir(ast);
-    ir::print_ir(&ir_code);
+    // ir::print_ir(&ir_code);
 
     let var_tree = vars::ir_func_code_to_vartree(ir_code.clone(), "_main".to_string())
         .unwrap_or_else(|e| exit(&format!("failed to construct vartree: {}", e)));
 
-    let var_map = vars::vartree_to_varmap(var_tree);
-    println!("{:?}", var_map);
-    // let asm_code = assembly::ir_code_to_asm(ir_code, &var_map);
+    let var_map = vars::vartree_to_varmap(var_tree)
+        .unwrap_or_else(|e| exit(&format!("failed to make varmap: {}", e)));
 
-    // if let Some(out_path) = cli.output {
-    //     fs::write(&out_path, &asm_code)
-    //         .unwrap_or_else(|e| exit(&format!("failed to write assembly to {}: {}", out_path, e)));
-    // } else {
-    //     println!("{}", asm_code);
-    // }
+    println!("{:?}", var_map);
+    
+    let asm_code = assembly::ir_code_to_asm(ir_code, &var_map);
+
+    if let Some(out_path) = cli.output {
+        fs::write(&out_path, &asm_code)
+            .unwrap_or_else(|e| exit(&format!("failed to write assembly to {}: {}", out_path, e)));
+    } else {
+        println!("{}", asm_code);
+    }
 }

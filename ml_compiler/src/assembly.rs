@@ -24,21 +24,19 @@ fn asm_load_from_var(rd: i32, var: &str, scope: &str, varmap: &VarMap) -> String
         res += &format!("\tlw x{}, {}(x{})\n", rd, (var_index_local + 3) * 4, REG_SP);
     } else {
         // いまいるstack frameから飛べるlambda closureにおいてある
-        let (n, _, closure_idx) = &map_free[var];
+        let (_, closure_idx) = &map_free[var];
         // rd = [sp + 8]                        // *closure
         // rd = [rd + (closure idx + 4) * 4]
         res += &format!("\tlw x{}, {}(x{})\n", rd, 8, REG_SP);
-
         res += &format!("\tlw x{}, {}(x{})\n", rd, (closure_idx + 4) * 4, rd);
     }
     res
 }
 
 // キャプチャのために束縛変数をとってきてレジスタにいれる
-// scope: 今いるscope
-// func: closureを作ろうとしている関数
-// var: funcの自由変数
-fn asm_load_outer_local_var(
+// scopeにおいて実体化が行われる
+// varがfuncの自由変数
+fn asm_load_for_capture(
     rd: i32,
     var: &str,
     scope: &str,
@@ -47,35 +45,21 @@ fn asm_load_outer_local_var(
 ) -> String {
     let mut res = "".to_string();
 
-    let (_, map_free) = &varmap[func];
-    let (map_local_now, _) = &varmap[scope];
-    let (n, scope_new, _) = &map_free[var];
-    // n = 1,2,3...
-    // n = 1なら、今のstack frame上にある
-    // n = 2なら、stack frame上のpointer→lambda closureの中のold sp→そのstack frame上
-    // n = 3なら、stack frame上のpointer→lambda closure→old lambda closureの中のold sp→そのstack frame上
+    println!("asm_load_for_capture: var={} scope={} func={}", var, scope, func);
+    let (_, map_free_inner) = &varmap[func];
+    let (map_local, map_free) = &varmap[scope];
+    let (from_closure, _) = &map_free_inner[var];
 
-    println!("asm_load_outer_local_var: {} {} {} {}", var, scope, func, n);
-    println!("scope_new: {}", scope_new);
-
-    if *n == 1 {
-        let local_idx = map_local_now[var];
-        res += &format!("\tlw x{}, {}(x{})\n", rd, (local_idx + 3) * 4, REG_SP);
-    } else {
-        let new_local_idx = &varmap[scope_new].0[var];
-
+    if *from_closure {
+        let (_, closure_idx) = map_free[var];
         // rd = [sp + 8]    // *closure
         res += &format!("\tlw x{}, {}(x{})\n", rd, 8, REG_SP);
-
-        for _ in 0..(*n - 2) {
-            // rd = [rd]    // 外側closure
-            res += &format!("\tlw x{}, {}(x{})\n", rd, 0, rd);
-        }
-
-        // rd = [rd + 4]    // closureが作られたときのsp
-        res += &format!("\tlw x{}, {}(x{})\n", rd, 4, rd);
-        // rd = [rd + (idx + 3) * 4]
-        res += &format!("\tlw x{}, {}(x{})\n", rd, (new_local_idx + 3) * 4, rd);
+        // rd = [rd + (idx + 4) * 4]    // closureからとってくる
+        res += &format!("\tlw x{}, {}(x{})\n", rd, (closure_idx + 4) * 4, rd);
+    } else {
+        let local_idx = map_local[var];
+        // rd = [sp + (idx + 3) * 4]    // stack frameからとってくる
+        res += &format!("\tlw x{}, {}(x{})\n", rd, (local_idx + 3) * 4, REG_SP);
     }
     res
 }
@@ -210,10 +194,10 @@ pub fn ir_code_to_asm(code: IRCode, varmap: &VarMap) -> String {
                     res += &format!("\tsw x{}, {}(x{})\n", REG_T0, 12, REG_HP);
 
                     for (fvar, entry) in map_free {
-                        let (_, _, capture_idx) = entry;
-                        res += &asm_load_outer_local_var(REG_T0, fvar, &f, &flabel, varmap);
+                        let (_, closure_idx) = entry;
+                        res += &asm_load_for_capture(REG_T0, fvar, &f, &flabel, varmap);
                         res +=
-                            &format!("\tsw x{}, {}(x{})\n", REG_T0, 4 * (capture_idx + 4), REG_HP);
+                            &format!("\tsw x{}, {}(x{})\n", REG_T0, 4 * (closure_idx + 4), REG_HP);
                     }
 
                     res += &asm_store_to_var(&x, REG_HP, &f, varmap);
