@@ -17,7 +17,7 @@ let g = fun x -> fun y -> (
     print_string ") is ";
     print_string (
       if x1 && x2 then "both small" else (
-        if not x1 && not x2 then "both big" else "big and small"
+        if (not x1) && (not x2) then "both big" else "big and small"
       )
     );
     print_string "\n"

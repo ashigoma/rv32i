@@ -40,7 +40,7 @@ fn main() {
     let (_ast_type, _constr) = typing::get_type_and_unified_constr(ast.clone());
 
     let ir_code = ir::ast_to_ir(ast);
-    // ir::print_ir(&ir_code);
+    ir::print_ir(&ir_code);
 
     let var_tree = vars::ir_func_code_to_vartree(ir_code.clone(), "_main".to_string())
         .unwrap_or_else(|e| exit(&format!("failed to construct vartree: {}", e)));

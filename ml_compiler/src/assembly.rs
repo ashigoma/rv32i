@@ -39,10 +39,10 @@ fn asm_load_from_var(rd: i32, var: &str, scope: &str, varmap: &VarMap) -> String
 fn asm_load_for_capture(rd: i32, var: &str, scope: &str, func: &str, varmap: &VarMap) -> String {
     let mut res = "".to_string();
 
-    println!(
-        "asm_load_for_capture: var={} scope={} func={}",
-        var, scope, func
-    );
+    // println!(
+    //     "asm_load_for_capture: var={} scope={} func={}",
+    //     var, scope, func
+    // );
     let (_, map_free_inner) = &varmap[func];
     let (map_local, map_free) = &varmap[scope];
     let (from_closure, _) = &map_free_inner[var];
@@ -128,33 +128,42 @@ pub fn ir_code_to_asm(code: IRCode, varmap: &VarMap) -> String {
             res += "\n";
             match c {
                 IRExpr::ADD(x1, x2, x3) => emit_binop(&mut res, "add", &x1, &x2, &x3, &f, varmap),
-                IRExpr::SUB(x1, x2, x3) => emit_binop(&mut res, "sub", &x1, &x2, &x3, &f, varmap),
-                IRExpr::GEQ(x1, x2, x3) => emit_binop(&mut res, "sll", &x1, &x2, &x3, &f, varmap),
-                IRExpr::LEQ(x1, x2, x3) => emit_binop(&mut res, "sll", &x1, &x3, &x2, &f, varmap),
-                IRExpr::GT(x1, x2, x3) => emit_binop(&mut res, "slt", &x1, &x3, &x2, &f, varmap),
-                IRExpr::LT(x1, x2, x3) => emit_binop(&mut res, "slt", &x1, &x2, &x3, &f, varmap),
+                IRExpr::SUB(x1, x2, x3) => emit_binop(&mut res, "sub", &x1, &x2, &x3, &f, varmap),IRExpr::GEQ(x1, x2, x3) => emit_binop(&mut res, "slt", &x1, &x2, &x3, &f, varmap),
+                IRExpr::LEQ(x1, x2, x3) => emit_binop(&mut res, "slt", &x1, &x3, &x2, &f, varmap),
+                IRExpr::GT(x1, x2, x3) => {
+                    res += &asm_load_from_var(REG_T1, &x2, &f, varmap);
+                    res += &asm_load_from_var(REG_T2, &x3, &f, varmap);
+                    res += &format!("\tslt x{}, x{}, x{}\n", REG_T0, REG_T2, REG_T1);
+                    res += &format!("\txori x{}, x{}, 1\n", REG_T0, REG_T0);
+                    res += &asm_store_to_var(&x1, REG_T0, &f, varmap);
+                }
+                IRExpr::LT(x1, x2, x3) => {
+                    res += &asm_load_from_var(REG_T1, &x2, &f, varmap);
+                    res += &asm_load_from_var(REG_T2, &x3, &f, varmap);
+                    res += &format!("\tslt x{}, x{}, x{}\n", REG_T0, REG_T1, REG_T2);
+                    res += &format!("\txori x{}, x{}, {}\n", REG_T0, REG_T0, 1);
+                    res += &asm_store_to_var(&x1, REG_T0, &f, varmap);
+                }
                 IRExpr::EQ(x1, x2, x3) => {
                     res += &asm_load_from_var(REG_T1, &x2, &f, varmap);
                     res += &asm_load_from_var(REG_T2, &x3, &f, varmap);
-                    res += &format!("\tsll x{}, x{}, x{}\n", REG_T0, REG_T1, REG_T2);
-                    res += &format!("\tsll x{}, x{}, x{}\n", REG_T3, REG_T2, REG_T1);
-                    res += &format!("\tand x{}, x{}, x{}\n", REG_T0, REG_T3, REG_T0);
+                    res += &format!("\txor x{}, x{}, x{}\n", REG_T0, REG_T1, REG_T2);
+                    res += &format!("\tsltu x{}, x0, x{}\n", REG_T0, REG_T0);
                     res += &asm_store_to_var(&x1, REG_T0, &f, varmap);
                 }
                 IRExpr::NEQ(x1, x2, x3) => {
                     res += &asm_load_from_var(REG_T1, &x2, &f, varmap);
                     res += &asm_load_from_var(REG_T2, &x3, &f, varmap);
-                    res += &format!("\tslt x{}, x{}, x{}\n", REG_T0, REG_T1, REG_T2);
-                    res += &format!("\tslt x{}, x{}, x{}\n", REG_T3, REG_T2, REG_T1);
-                    res += &format!("\tor x{}, x{}, x{}\n", REG_T0, REG_T3, REG_T0);
+                    res += &format!("\txor x{}, x{}, x{}\n", REG_T0, REG_T1, REG_T2);
+                    res += &format!("\tsltu x{}, x0, x{}\n", REG_T0, REG_T0);
+                    res += &format!("\txori x{}, x{}, {}\n", REG_T0, REG_T0, 1);
                     res += &asm_store_to_var(&x1, REG_T0, &f, varmap);
                 }
-                IRExpr::AND(x1, x2, x3) => emit_binop(&mut res, "and", &x1, &x2, &x3, &f, varmap),
-                IRExpr::OR(x1, x2, x3) => emit_binop(&mut res, "or", &x1, &x2, &x3, &f, varmap),
+                IRExpr::AND(x1, x2, x3) => emit_binop(&mut res, "or", &x1, &x2, &x3, &f, varmap),
+                IRExpr::OR(x1, x2, x3) => emit_binop(&mut res, "and", &x1, &x2, &x3, &f, varmap),
                 IRExpr::NOT(x1, x2) => {
                     res += &asm_load_from_var(REG_T1, &x2, &f, varmap);
-                    res += &format!("\tli x{}, {}\n", REG_T2, 1);
-                    res += &format!("\tsub x{}, x{}, x{}\n", REG_T0, REG_T2, REG_T1);
+                    res += &format!("\txori x{}, x{}, 1\n", REG_T0, REG_T0);
                     res += &asm_store_to_var(&x1, REG_T0, &f, varmap);
                 }
                 IRExpr::LABEL(s) => {
@@ -165,7 +174,7 @@ pub fn ir_code_to_asm(code: IRCode, varmap: &VarMap) -> String {
                 }
                 IRExpr::BRANCH(x, s) => {
                     res += &asm_load_from_var(REG_T0, &x, &f, varmap);
-                    res += &format!("\tbne x{}, x0, {}\n", REG_T0, s);
+                    res += &format!("\tbeq x{}, x0, {}\n", REG_T0, s);
                 }
                 IRExpr::LOAD(x1, x2) => {
                     res += &asm_load_from_var(REG_T0, &x2, &f, varmap);

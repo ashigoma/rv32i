@@ -248,8 +248,7 @@ fn new_label() -> String {
 pub fn ir_to_string(ir_expr: IRExpr, tab: bool) -> String {
     let mut res = if tab {
         match ir_expr {
-            IRExpr::JUMP(_) => "".to_string(),
-            IRExpr::BRANCH(_, _) => "".to_string(),
+            IRExpr::LABEL(_) => "".to_string(),
             _ => "\t".to_string(),
         }
     } else {

@@ -11,12 +11,12 @@ make
 ```
 
 ### OCamlコードをrv32i向けにビルドして実行
-`src/hello_world.ml`なら
+`src/helloworld.ml`なら
 ```
-make hello_world
+make run-helloworld
 ```
 
 ### rv32i spike simと自前実装rv32iでトレースログが一致しているか確認
 ```
-make compare hello_world
+make test-helloworld
 ```

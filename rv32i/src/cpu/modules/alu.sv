@@ -17,9 +17,9 @@ module alu (
       ALU_AND: out = a & b;
       ALU_OR: out = a | b;
       ALU_XOR: out = a ^ b;
-      ALU_SLT: out = 32'($signed(a) < $signed(b));
-      ALU_SLTU: out = 32'($unsigned(a) < $unsigned(b));
-      ALU_SLTI: out = 32'($signed(a) < 32'($signed(b[11:0])));
+      ALU_SLT: out = {31'b0, $signed(a) < $signed(b)};
+      ALU_SLTU: out = {31'b0, a < b};
+      ALU_SLTI: out = {31'b0, $signed(a) < $signed({{20{b[11]}}, b[11:0]})};
       ALU_SLTIU: out = 32'($unsigned(a) < 32'($unsigned(b[11:0])));
       ALU_SLL: out = a << b[4:0];
       ALU_SRL: out = a >> b[4:0];
