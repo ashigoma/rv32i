@@ -1,4 +1,4 @@
-mod assembly;
+// mod assembly;
 mod enums;
 mod grammer;
 mod ir;
@@ -47,12 +47,12 @@ fn main() {
 
     let var_map = vars::vartree_to_varmap(var_tree);
     println!("{:?}", var_map);
-    let asm_code = assembly::ir_code_to_asm(ir_code, &var_map);
+    // let asm_code = assembly::ir_code_to_asm(ir_code, &var_map);
 
-    if let Some(out_path) = cli.output {
-        fs::write(&out_path, &asm_code)
-            .unwrap_or_else(|e| exit(&format!("failed to write assembly to {}: {}", out_path, e)));
-    } else {
-        println!("{}", asm_code);
-    }
+    // if let Some(out_path) = cli.output {
+    //     fs::write(&out_path, &asm_code)
+    //         .unwrap_or_else(|e| exit(&format!("failed to write assembly to {}: {}", out_path, e)));
+    // } else {
+    //     println!("{}", asm_code);
+    // }
 }
