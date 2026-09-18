@@ -6,12 +6,13 @@
 
 ## build & run
 ### cpuとコンパイラをビルド
+verilator, RISC-V GCC が必要
 ```
 make
 ```
 
 ### OCamlコードをrv32i向けにビルドして実行
-`src/helloworld.ml`なら
+`src/`にコードを置き、`src/helloworld.ml`なら
 ```
 make run-helloworld
 ```

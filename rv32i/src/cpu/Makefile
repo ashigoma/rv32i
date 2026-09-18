@@ -8,7 +8,7 @@ FLAGS := -g2012
 
 .PHONY: all lint format
 
-all: format lint main
+all: lint main
 
 format:
 	$(FORMATTER) $(SRCS)
