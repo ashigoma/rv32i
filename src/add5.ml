@@ -1,0 +1,1 @@
+print_int (let f = fun v -> fun w -> fun x -> fun y -> fun z -> v + w + x + y + z in f 1 2 3 4 5)

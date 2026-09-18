@@ -104,25 +104,25 @@ fn ir_lookup_fn(code: IRCode, label: String) -> Option<FuncCode> {
     return None;
 }
 
-fn write_to_map(map: &mut VarMap, func: &VarTree, outer_local: &mut LocalVarMapping, outer_free: &mut FreeVarMapping) -> Result<Vec<String>, String> {
+fn write_to_map(map: &mut VarMap, func: &VarTree, outer_local: &LocalVarMapping, outer_free: &mut FreeVarMapping) -> Result<Vec<String>, String> {
     let mut map_local = LocalVarMapping::new();
     let mut map_free = FreeVarMapping::new();
     let mut new_outer_free = Vec::new();
 
     if let VarTree::FUNC(func_name, children, freevals) = func {
         // 明らかに自由変数なものたち
-        for s in freevals {
-            if let Some(_) = outer_local.get(s) {
+        for fv in freevals {
+            if let Some(_) = outer_local.get(fv) {
                 // 外側関数の束縛変数
-                map_free.insert(s.to_string(), (false, map_free.len()));
-            } else if let Some((_, _)) = outer_free.get(s) {
+                map_free.insert(fv.to_string(), (false, map_free.len()));
+            } else if let Some((_, _)) = outer_free.get(fv) {
                 // 他の関数によって、外側関数の自由変数にすでに登録されている
-                map_free.insert(s.to_string(), (true, map_free.len()));
+                map_free.insert(fv.to_string(), (true, map_free.len()));
             } else {
                 // 外側関数の自由変数かつ未登録なら仮登録
-                outer_free.insert(s.to_string(), (true, outer_free.len())); // trueは仮 idxはここで確定
-                map_free.insert(s.to_string(), (true, map_free.len()));
-                new_outer_free.push(s.to_string());
+                outer_free.insert(fv.to_string(), (true, outer_free.len())); // trueは仮 idxはここで確定
+                map_free.insert(fv.to_string(), (true, map_free.len()));
+                new_outer_free.push(fv.to_string());
             }
         }
 
@@ -137,7 +137,16 @@ fn write_to_map(map: &mut VarMap, func: &VarTree, outer_local: &mut LocalVarMapp
                     // その過程で仮登録された自身の各自由変数が、外側関数の自由変数なのか束縛変数なのかを登録
                     for fv in new_free {
                         let (_, idx) = map_free[&fv];
-                        map_free.insert(fv.clone(), (!outer_local.contains_key(&fv), idx));
+                        if outer_local.contains_key(&fv) {
+                            map_free.insert(fv.clone(), (false, idx));
+                        } else {
+                            map_free.insert(fv.clone(), (true, idx));
+                            // 外側関数の自由変数、かつ未登録なら仮登録
+                            if !outer_free.contains_key(&fv) {
+                                outer_free.insert(fv.clone(), (true, outer_free.len())); // trueは仮 idxはここで確定
+                                new_outer_free.push(fv.clone());
+                            }
+                        }
                     }
                 } else if let Err(e) = r {
                     return Err(e);
@@ -154,70 +163,12 @@ fn write_to_map(map: &mut VarMap, func: &VarTree, outer_local: &mut LocalVarMapp
 } 
 
 
-// fn write_to_map(map: &mut VarMap, func: &VarTree, scope: Vec<(String, i32, String)>) {
-//     let mut map_local = LocalVarMapping::new();
-//     let mut map_free = FreeVarMapping::new();
-//     let mut scope_ = scope.clone();
-
-//     if let VarTree::FUNC(func_name, children, freevals) = func {
-//         // 束縛変数
-//         let mut i = 0;
-//         for c in children.iter() {
-//             if let VarTree::VAR(s) = c {
-//                 // println!("{} {} {}", func_name, i, s);
-//                 map_local.insert(s.to_string(), i);
-//                 scope_.push((s.to_string(), 0, func_name.to_string()));
-//                 i += 1;
-//             } else if let VarTree::FUNC(func_name_child, _, _) = c {
-//                 let mut scope_2 = scope_.clone();
-//                 for j in 0..scope_2.len() {
-//                     let (v, n, f) = &scope_2[j];
-//                     scope_2[j] = (v.to_string(), n + 1, f.to_string());
-//                 }
-//                 write_to_map(map, &c, scope_2);
-//                 // 内側関数の自由変数 \ 外側関数の束縛変数 は 外側関数の自由変数として扱う
-//                 let mut u = map[func_name_child].1; // 内側の自由変数
-//                 u.retain(|x| map_local.contains(x));
-//                 for val_inner_free_carry in u {
-//                     let (n_plus_1, scope_new, closure_idx) = map[&c].1[val_inner_free_carry];
-//                     map_free.insert(val_inner_free_carry, (n_plus_1 - 1, scope_new, closure_idx));
-//                 }
-//             }
-//         }
-
-//         // 自由変数
-//         // println!("map:{:?}\nfunc:{:?}\nscope:{:?}", map, func, scope);
-//         // println!("freevals: {:?}", freevals);
-//         // println!("scope: {:?}", scope);
-//         let mut j = 0;
-//         for s in freevals {
-//             let mut found = false;
-//             for (v, n, f) in scope.iter().rev() {
-//                 if v == s {
-//                     map_free.insert(v.to_string(), (*n, f.to_string(), j));
-//                     found = true;
-//                     j += 1;
-//                     break;
-//                 }
-//             }
-//             if !found {
-//                 println!("write_to_map: undefined variable: {}", s);
-//             }
-//         }
-
-//         let entry: VarMapEntry = (map_local, map_free);
-//         map.insert(func_name.to_string(), entry);
-//     } else {
-//         println!("write_to_map: not a function: {:?}", func);
-//     }
-// }
-
 pub fn vartree_to_varmap(tree: VarTree) -> Result<VarMap, String> {
-    let mut map_local_main = LocalVarMapping::new();
+    let map_local_main = LocalVarMapping::new();
     let mut map_free_main = FreeVarMapping::new();
     let mut map = VarMap::new();
 
-    let r = write_to_map(&mut map, &tree, &mut map_local_main, &mut map_free_main);
+    let r = write_to_map(&mut map, &tree, &map_local_main, &mut map_free_main);
     if let Ok(v) = r {
         if !v.is_empty() {
             return Err(format!("_main has freevals: {:?}", v));
@@ -227,4 +178,25 @@ pub fn vartree_to_varmap(tree: VarTree) -> Result<VarMap, String> {
     }
 
     Ok(map)
+}
+
+pub fn print_varmap(map: &VarMap) {
+    let mut funcs: Vec<_> = map.iter().collect();
+    funcs.sort_by_key(|(k, _)| if *k == "_main" { "" } else { k.as_str() });
+
+    for (func, (local_map, free_map)) in funcs {
+        let mut locals: Vec<_> = local_map.iter().collect();
+        locals.sort_by_key(|&(_, id)| id);
+        let local_str = locals.iter().map(|(k, _)| k.as_str()).collect::<Vec<_>>().join(" ");
+
+        let mut frees: Vec<_> = free_map.iter().collect();
+        frees.sort_by_key(|&(_, (_, id))| id);
+        let free_str = frees
+            .iter()
+            .map(|(k, (is_cls, _))| format!("{}({})", k, if *is_cls { "closure" } else { "stack" }))
+            .collect::<Vec<_>>()
+            .join(" ");
+
+        println!("{}\n\tlocal: {}\n\tfree: {}", func, local_str, free_str);
+    }
 }
