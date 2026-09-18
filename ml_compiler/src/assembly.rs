@@ -36,16 +36,13 @@ fn asm_load_from_var(rd: i32, var: &str, scope: &str, varmap: &VarMap) -> String
 // キャプチャのために束縛変数をとってきてレジスタにいれる
 // scopeにおいて実体化が行われる
 // varがfuncの自由変数
-fn asm_load_for_capture(
-    rd: i32,
-    var: &str,
-    scope: &str,
-    func: &str,
-    varmap: &VarMap,
-) -> String {
+fn asm_load_for_capture(rd: i32, var: &str, scope: &str, func: &str, varmap: &VarMap) -> String {
     let mut res = "".to_string();
 
-    println!("asm_load_for_capture: var={} scope={} func={}", var, scope, func);
+    println!(
+        "asm_load_for_capture: var={} scope={} func={}",
+        var, scope, func
+    );
     let (_, map_free_inner) = &varmap[func];
     let (map_local, map_free) = &varmap[scope];
     let (from_closure, _) = &map_free_inner[var];

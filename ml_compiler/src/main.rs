@@ -48,7 +48,7 @@ fn main() {
     let var_map = vars::vartree_to_varmap(var_tree)
         .unwrap_or_else(|e| exit(&format!("failed to make varmap: {}", e)));
     vars::print_varmap(&var_map);
-    
+
     let asm_code = assembly::ir_code_to_asm(ir_code, &var_map);
 
     if let Some(out_path) = cli.output {

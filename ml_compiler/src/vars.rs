@@ -5,7 +5,7 @@ use crate::ir::IRCode;
 use std::collections::HashMap;
 
 type LocalVarMapping = HashMap<String, usize>;
-type FreeVarMapping = HashMap<String, (bool, usize)>;    // 1つ前のscopeのclosureからとってくるならtrue 1つ前のscopeの束縛変数ならfalse あとclosure上でのindex
+type FreeVarMapping = HashMap<String, (bool, usize)>; // 1つ前のscopeのclosureからとってくるならtrue 1つ前のscopeの束縛変数ならfalse あとclosure上でのindex
 type VarMapEntry = (LocalVarMapping, FreeVarMapping);
 pub type VarMap = HashMap<String, VarMapEntry>;
 
@@ -104,7 +104,12 @@ fn ir_lookup_fn(code: IRCode, label: String) -> Option<FuncCode> {
     return None;
 }
 
-fn write_to_map(map: &mut VarMap, func: &VarTree, outer_local: &LocalVarMapping, outer_free: &mut FreeVarMapping) -> Result<Vec<String>, String> {
+fn write_to_map(
+    map: &mut VarMap,
+    func: &VarTree,
+    outer_local: &LocalVarMapping,
+    outer_free: &mut FreeVarMapping,
+) -> Result<Vec<String>, String> {
     let mut map_local = LocalVarMapping::new();
     let mut map_free = FreeVarMapping::new();
     let mut new_outer_free = Vec::new();
@@ -160,8 +165,7 @@ fn write_to_map(map: &mut VarMap, func: &VarTree, outer_local: &LocalVarMapping,
     } else {
         Err(format!("not a function: {:?}", func))
     }
-} 
-
+}
 
 pub fn vartree_to_varmap(tree: VarTree) -> Result<VarMap, String> {
     let map_local_main = LocalVarMapping::new();
@@ -187,7 +191,11 @@ pub fn print_varmap(map: &VarMap) {
     for (func, (local_map, free_map)) in funcs {
         let mut locals: Vec<_> = local_map.iter().collect();
         locals.sort_by_key(|&(_, id)| id);
-        let local_str = locals.iter().map(|(k, _)| k.as_str()).collect::<Vec<_>>().join(" ");
+        let local_str = locals
+            .iter()
+            .map(|(k, _)| k.as_str())
+            .collect::<Vec<_>>()
+            .join(" ");
 
         let mut frees: Vec<_> = free_map.iter().collect();
         frees.sort_by_key(|&(_, (_, id))| id);
